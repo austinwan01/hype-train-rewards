@@ -42,13 +42,18 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .stat{background:var(--s2);border-radius:var(--rm);padding:8px 10px}
 .stat small{display:block;color:var(--tm);font-size:11px}
 .stat b{font:700 16px/1.2 var(--font);font-variant-numeric:tabular-nums}
-.edrow{display:grid;grid-template-columns:52px minmax(0,1fr) 120px 30px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.edrow{display:grid;grid-template-columns:52px minmax(0,1fr) 72px 120px 30px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
 .edrow:last-of-type{border-bottom:0}
 .edrow .lv{font-weight:700;color:var(--t2)}
 .in{width:100%;background:var(--s2);border:1px solid var(--line);border-radius:var(--rm);padding:7px 9px;color:var(--t1);font:400 13px/1.3 var(--font)}
 .in::placeholder{color:var(--tm)}
 .x{width:30px;height:30px;border-radius:50%;border:0;background:var(--btn2);cursor:pointer;font-size:15px;line-height:1}
-@media (max-width:520px){.edrow{grid-template-columns:44px minmax(0,1fr) 30px}.edrow select{grid-column:2/3}}
+@media (max-width:520px){.edrow{grid-template-columns:44px minmax(0,1fr) 72px 30px}.edrow select{grid-column:2/4}.edrow .x{grid-row:1;grid-column:4}}
+.diff{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:12px}
+.diff label{font-weight:600;font-size:13px}
+.edhead{display:grid;grid-template-columns:52px minmax(0,1fr) 72px 120px 30px;gap:8px;font:600 11px/1.2 var(--font);text-transform:uppercase;letter-spacing:.05em;color:var(--tm);padding-bottom:4px}
+@media (max-width:520px){.edhead{grid-template-columns:44px minmax(0,1fr) 72px 30px}.edhead .dh{display:none}}
+.in.num{text-align:center;font-variant-numeric:tabular-nums}
 .hint{color:var(--tm);font-size:12px;margin-top:10px}
 .log{max-height:150px;overflow:auto;font-size:12px;color:var(--t2);display:flex;flex-direction:column;gap:4px}
 
@@ -248,8 +253,10 @@ svg.i{width:16px;height:16px;flex:none}
     </div>
 
     <div class="card">
-      <h2>Creator dashboard: rewards</h2>
-      <p class="sub">What DropZoneDana will do at each level. Changes show on the phone right away. Leave a title empty to use the default emote reward.</p>
+      <h2>Creator dashboard: rewards and difficulty</h2>
+      <p class="sub">What DropZoneDana will do at each level. Changes show on the phone right away. Leave a title empty to use the default emote reward. "Subs" is how many subs it takes to reach that level; leave it empty to use the difficulty setting. 1 sub = 500 Bits.</p>
+      <div class="diff"><label for="difficulty">Difficulty</label><select class="in" id="difficulty" style="width:auto"><option value="easy">Easy</option><option value="normal">Normal</option><option value="hard">Hard</option></select><span class="hint" style="margin:0" id="diffhint"></span></div>
+      <div class="edhead"><span>Level</span><span>Reward</span><span>Subs</span><span class="dh">Due</span><span></span></div>
       <div id="editor"></div>
       <div class="btnrow" style="margin-top:10px"><button class="pill s" type="button" id="b-addlvl">Add a level</button></div>
       <p class="hint" id="lockhint" hidden>Editing is locked while a train is running, so a reward can't change after chat starts paying for it.</p>
@@ -276,7 +283,12 @@ const DEFAULT_REWARDS=[
   {l:7,title:"Chat names my next 3 skins",details:"",due:"Next stream"}
 ];
 const SUB=500, TRAIN_SECS=300;
-const need=l=>1500+300*(l-1);
+let difficulty="normal";
+try{difficulty=localStorage.getItem("hr-diff")||"normal"}catch(e){}
+const PRESET={easy:l=>2+Math.floor((l-2)/2),normal:l=>3+(l-2),hard:l=>5+2*(l-2)};
+const presetSubs=l=>PRESET[difficulty](Math.max(2,l));
+const subsTo=l=>{const r=rewards.find(r=>r.l===l);return r&&r.subs>0?r.subs:presetSubs(l)};
+const need=l=>subsTo(l+1)*SUB;
 const BOTS=[["kai_builds","#b57bff"],["mossy","#5fb8ff"],["rengoku_44","#62d48a"],["pixel_lena","#ff8fd0"],["deathcult_99","#ffb347"],["Ratchetvibes","#7fe0d0"],["celestialbits","#c9a0ff"]];
 const LINES=["LETS GOOO","PUSH THE TRAIN","she's gonna fight with a pickaxe lmao","no way she drops the guns","W streamer","clip it","HYPE","we're so close","chat do your thing","GG"];
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -284,7 +296,7 @@ const ic=(id,st)=>'<svg class="i"'+(st?' style="'+st+'"':'')+'><use href="#'+id+
 let rewards;
 try{rewards=JSON.parse(localStorage.getItem("hr-rewards")||"null")}catch(e){}
 if(!Array.isArray(rewards))rewards=JSON.parse(JSON.stringify(DEFAULT_REWARDS));
-const save=()=>{try{localStorage.setItem("hr-rewards",JSON.stringify(rewards))}catch(e){}};
+const save=()=>{try{localStorage.setItem("hr-rewards",JSON.stringify(rewards));localStorage.setItem("hr-diff",difficulty)}catch(e){}};
 
 let S;
 function fresh(){
@@ -355,7 +367,7 @@ function rewardRow(r){
   else if(st==="owed"){cls+=" owed";lab="Owed";}
   else if(st==="done"){cls+=" done";lab=ic("check","width:14px;height:14px")+"Done";}
   else if(st==="missed"){lab="Earlier";}
-  return '<button type="button" class="'+cls+'" data-detail="'+r.l+'"><span class="lvl">'+r.l+'</span><span class="t"><b>'+esc(r.title)+'</b><span>'+esc(r.due)+'</span></span><span class="st">'+lab+'</span></button>';
+  return '<button type="button" class="'+cls+'" data-detail="'+r.l+'"><span class="lvl">'+r.l+'</span><span class="t"><b>'+esc(r.title)+'</b><span>'+subsTo(r.l)+' subs \u00B7 '+esc(r.due)+'</span></span><span class="st">'+lab+'</span></button>';
 }
 function remainingTxt(){const rem=need(S.level)-S.pts;return '<b>'+ic("bits","width:14px;height:14px;vertical-align:-2px")+' '+fmt(rem)+' Bits</b> or <b>'+ic("gift","width:14px;height:14px;vertical-align:-2px")+' '+Math.ceil(rem/SUB)+' Subs</b><br>remaining to complete level '+S.level;}
 
@@ -471,10 +483,14 @@ const edEl=document.getElementById("editor");
 function renderEditor(){
   const locked=S.active;
   document.getElementById("lockhint").hidden=!locked;
-  edEl.innerHTML=rewards.slice().sort((a,b)=>a.l-b.l).map(r=>'<div class="edrow"><span class="lv">Lvl '+r.l+'</span><input class="in" id="t-'+r.l+'" data-ed="'+r.l+'" maxlength="60" placeholder="Default emote reward" value="'+esc(r.title)+'"'+(locked?" disabled":"")+'><select class="in" id="d-'+r.l+'" data-due="'+r.l+'"'+(locked?" disabled":"")+'>'+["This match","End of stream","Next stream"].map(o=>'<option'+(o===r.due?" selected":"")+'>'+o+'</option>').join("")+'</select><button class="x" type="button" data-del="'+r.l+'" aria-label="Remove level '+r.l+'"'+(locked?" disabled":"")+'>×</button></div>').join("");
+  edEl.innerHTML=rewards.slice().sort((a,b)=>a.l-b.l).map(r=>'<div class="edrow"><span class="lv">Lvl '+r.l+'</span><input class="in" id="t-'+r.l+'" data-ed="'+r.l+'" maxlength="60" placeholder="Default emote reward" value="'+esc(r.title)+'"'+(locked?" disabled":"")+'><input class="in num" type="number" min="1" max="200" inputmode="numeric" id="s-'+r.l+'" data-subs="'+r.l+'" placeholder="'+presetSubs(r.l)+'" value="'+(r.subs>0?r.subs:"")+'" aria-label="Subs to reach level '+r.l+'"'+(locked?" disabled":"")+'><select class="in" id="d-'+r.l+'" data-due="'+r.l+'"'+(locked?" disabled":"")+'>'+["This match","End of stream","Next stream"].map(o=>'<option'+(o===r.due?" selected":"")+'>'+o+'</option>').join("")+'</select><button class="x" type="button" data-del="'+r.l+'" aria-label="Remove level '+r.l+'"'+(locked?" disabled":"")+'>×</button></div>').join("");
   document.getElementById("b-addlvl").disabled=locked;
+  const ds=document.getElementById("difficulty");ds.value=difficulty;ds.disabled=locked;
+  document.getElementById("diffhint").textContent="Lvl 2 takes "+presetSubs(2)+" subs, Lvl 5 takes "+presetSubs(5)+", Lvl 10 takes "+presetSubs(10)+".";
 }
 edEl.addEventListener("input",e=>{const l=+e.target.dataset.ed;if(!l)return;const r=rewards.find(r=>r.l===l);r.title=e.target.value;save();render(false);});
+edEl.addEventListener("input",e=>{const l=+e.target.dataset.subs;if(!l)return;const v=parseInt(e.target.value,10);rewards.find(r=>r.l===l).subs=v>0?Math.min(v,200):null;save();render(false);});
+document.getElementById("difficulty").addEventListener("change",e=>{difficulty=e.target.value;save();log("hype_train.settings difficulty="+difficulty);renderEditor();render(false);});
 edEl.addEventListener("change",e=>{const l=+e.target.dataset.due;if(!l)return;rewards.find(r=>r.l===l).due=e.target.value;save();render(false);});
 edEl.addEventListener("click",e=>{const b=e.target.closest("[data-del]");if(!b)return;rewards=rewards.filter(r=>r.l!==+b.dataset.del);save();renderEditor();render(false);});
 document.getElementById("b-addlvl").onclick=()=>{const l=Math.max(1,...rewards.map(r=>r.l))+1;rewards.push({l,title:"",details:"",due:"This match"});save();renderEditor();render(false);setTimeout(()=>{const el=document.getElementById("t-"+l);el&&el.focus();},0);};
