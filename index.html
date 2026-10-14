@@ -284,6 +284,9 @@ const DEFAULT_REWARDS=[
   {l:6,title:"Face cam on for an hour",details:"",due:"End of stream"},
   {l:7,title:"Chat names my next 3 skins",details:"",due:"Next stream"}
 ];
+// Twitch US web prices and Hype Train points per sub tier
+const TIERS={1:{price:5.99,pts:500},2:{price:9.99,pts:1000},3:{price:24.99,pts:2500}};
+const money=n=>"$"+n.toFixed(2);
 const SUB=500, TRAIN_SECS=300;
 let difficulty="normal",custom={base:4,step:2,mode:"add",mult:2};
 try{difficulty=localStorage.getItem("hr-diff")||"normal";custom=Object.assign(custom,JSON.parse(localStorage.getItem("hr-custom")||"null")||{})}catch(e){}
@@ -303,7 +306,7 @@ const save=()=>{try{localStorage.setItem("hr-rewards",JSON.stringify(rewards));l
 let S;
 function fresh(){
   S={mode:S?S.mode:"viewer",active:true,level:1,pts:600,ends:Date.now()+TRAIN_SECS*1000,unlocked:{},contrib:{mossy:{g:5,b:0},deathcult_99:{g:4,b:0},Ratchetvibes:{g:3,b:300},celestialbits:{g:0,b:1200}},
-     chat:[],open:false,sheet:null,sel:5,bitsSel:1000,tab:"gift",detail:null,notify:{},toast:null,pinned:null,you:0,lbMetric:"gifts",upAt:0};
+     chat:[],open:false,sheet:null,sel:5,bitsSel:1000,tab:"gift",detail:null,notify:{},toast:null,pinned:null,you:0,lbMetric:"gifts",upAt:0,tier:1};
 }
 fresh();
 const rewardAt=l=>{const r=rewards.find(r=>r.l===l);return r&&r.title.trim()?r:null};
@@ -410,22 +413,24 @@ function viewer(){
 
 function giftSheet(){
   const nx=nextReward(), rem=need(S.level)-S.pts;
-  const subsNeeded=Math.ceil(rem/SUB);
-  const opts=[{n:1,p:"$5.99"},{n:5,p:"$29.95",o:"$39.95",b:'<span class="gbadge d">SAVE $10</span>'},{n:10,p:"$59.90",o:"$79.90",b:'<span class="gbadge p">POPULAR</span>'}];
+  const T=TIERS[S.tier];
+  const subsNeeded=Math.ceil(rem/T.pts);
+  const opts=[{n:1},{n:5,b:'<span class="gbadge p">POPULAR</span>'},{n:10}].map(o=>Object.assign(o,{p:money(o.n*T.price)}));
   const sel=opts.find(o=>o.n===S.sel);
-  const add=Math.min(100-pct(),Math.round(S.sel*SUB/need(S.level)*100));
+  const add=Math.min(100-pct(),Math.round(S.sel*T.pts/need(S.level)*100));
   const st=S.lbMetric;
   const top=topThree(); const myAfter=(S.contrib.You?S.contrib.You.g:0)+S.sel;
   const rank=1+Object.entries(S.contrib).filter(([k,v])=>k!=="You"&&v.g>myAfter).length;
   let h='<div class="shead"><div class="switcher"><button type="button" aria-pressed="false" aria-label="Subscribe">'+ic("star","width:15px;height:15px")+'</button><button type="button" aria-pressed="true" aria-label="Gift">'+ic("gift","width:15px;height:15px")+'</button></div><h3>Gift a Sub</h3><button class="xbtn" type="button" data-close aria-label="Close">×</button></div>';
   if(S.active&&nx&&nx.l===S.level+1){
-    h+='<div class="rbanner"><div class="top2">'+ic("gift","color:var(--r1)")+'<span><b>'+subsNeeded+' sub'+(subsNeeded>1?"s":"")+' unlocks Lvl '+nx.l+':</b> '+esc(nx.title)+'</span></div><div class="mini"><i class="a" style="width:'+pct()+'%"></i><i class="b" style="width:'+add+'%"></i></div><small>'+(S.sel>=subsNeeded?S.sel+" Gift"+(S.sel>1?"s":"")+" finishes the level on its own":"Gold shows how far your gift moves the train")+'</small></div>';
+    h+='<div class="rbanner"><div class="top2">'+ic("gift","color:var(--r1)")+'<span><b>'+subsNeeded+' Tier '+S.tier+' sub'+(subsNeeded>1?"s":"")+' unlocks Lvl '+nx.l+':</b> '+esc(nx.title)+'</span></div><div class="mini"><i class="a" style="width:'+pct()+'%"></i><i class="b" style="width:'+add+'%"></i></div><small>'+(S.sel>=subsNeeded?(subsNeeded===1?"1 gift":subsNeeded+" gifts")+" at this tier finishes the level":"Gold shows how far your gift moves the train")+'</small></div>';
   }
   h+='<div class="gifts">'+opts.map(o=>'<button type="button" class="gwrap" data-sel="'+o.n+'" aria-pressed="'+(o.n===S.sel)+'"><span class="gcard"><span class="art"><span class="gstack"><i></i><i></i><i></i></span>'+(o.b||"")+'</span><span class="ginfo"><b>'+o.n+' Gift'+(o.n>1?"s":"")+'</b><span class="pr">'+o.p+'</span>'+(o.o?'<s>'+o.o+'</s>':"")+'</span></span></button>').join("")+'</div>';
-  h+='<div class="tiers"><button type="button" aria-pressed="true">Tier 1</button><button type="button" aria-pressed="false">Tier 2</button><button type="button" aria-pressed="false">Tier 3</button></div>';
+  h+='<div class="tiers" role="group" aria-label="Sub tier">'+[1,2,3].map(t=>'<button type="button" data-tier="'+t+'" aria-pressed="'+(t===S.tier)+'">Tier '+t+'</button>').join("")+'</div>';
+  h+='<div style="text-align:center;font-size:12.5px;color:var(--t2);margin-top:-4px">'+money(T.price)+' each \u00B7 each gift counts as '+(T.pts/SUB)+' sub'+(T.pts>SUB?"s":"")+' ('+T.pts.toLocaleString()+' pts) toward the train</div>';
   if(S.active)h+='<div class="rankline"><span class="medal m'+Math.min(rank,3)+'"'+(rank>3?' style="background:var(--s3);color:var(--t2)"':"")+'>'+rank+'</span><span>Gifting '+S.sel+' puts you <b>#'+rank+' on the leaderboard</b></span></div>';
   h+='<div class="rankline">'+ic("emote","color:var(--t2)")+'<span>Plus a random Hype Train emote for you</span></div>';
-  h+='<button class="pill p block" type="button" id="dogift">'+ic("gift")+'Gift '+S.sel+' sub'+(S.sel>1?"s":"")+' · '+sel.p+'</button>';
+  h+='<button class="pill p block" type="button" id="dogift">'+ic("gift")+'Gift '+S.sel+' Tier '+S.tier+' sub'+(S.sel>1?"s":"")+' \u00B7 '+sel.p+'</button>';
   h+='<span style="text-align:center;font-size:12.5px;color:var(--tm)">Prototype: no payment happens</span>';
   return h;
 }
@@ -528,7 +533,8 @@ scr.addEventListener("click",e=>{
   else if(t.dataset.detail){S.detail=+t.dataset.detail;S.sheet="detail";}
   else if(t.dataset.sel){S.sel=+t.dataset.sel;}
   else if(t.dataset.bits){S.bitsSel=+t.dataset.bits;}
-  else if(t.id==="dogift"){S.lbMetric="gifts";addPts("You",S.sel*SUB,"gift",S.sel);say(null,"You gifted "+S.sel+" sub"+(S.sel>1?"s":"")+" to the community!",true);log("channel.subscription.gift total="+S.sel);S.sheet=null;}
+  else if(t.dataset.tier){S.tier=+t.dataset.tier;}
+  else if(t.id==="dogift"){S.lbMetric="gifts";addPts("You",S.sel*TIERS[S.tier].pts,"gift",S.sel);say(null,"You gifted "+S.sel+" Tier "+S.tier+" sub"+(S.sel>1?"s":"")+" to the community!",true);log("channel.subscription.gift tier="+S.tier+"000 total="+S.sel);S.sheet=null;}
   else if(t.id==="docheer"){S.lbMetric="bits";addPts("You",S.bitsSel,"bits",S.bitsSel);say("You","Cheer"+S.bitsSel+" LETS GO");S.chat[S.chat.length-1].color="#9147ff";log("channel.cheer bits="+S.bitsSel);S.sheet=null;}
   else if(t.id==="notify"){S.notify[S.detail]=!S.notify[S.detail];}
   else if(t.id==="report"){S.sheet=null;say(null,"Thanks. Your report was sent to Twitch Safety (simulated).",true);}
