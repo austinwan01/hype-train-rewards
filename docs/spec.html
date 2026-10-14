@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hype Train Creator Rewards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: single reading column for the spec, broken by wide stage bands of 390pt-style phone mockups.
+   Tokens are copied from the Midnight Rail Hype Train design system (Figma). The system is dark-only, so this page commits to its dark look. */
+:root{
+  --color-bg-base:#0e0e10; --color-bg-surface-1:#18181b; --color-bg-surface-2:#26262c; --color-bg-surface-3:#2e2e35;
+  --color-bg-button-secondary:#28282e; --color-border-divider:#2f2f35;
+  --color-text-primary:#efeff1; --color-text-secondary:#d3d3d9; --color-text-muted:#a3a3ad; --color-text-on-accent:#ffffff;
+  --color-accent-brand:#9147ff; --color-accent-hype:#6d5dff;
+  --color-rank-1:#e8b92e; --color-rank-2:#b8c4ce; --color-rank-3:#d9845a; --color-mock-user-1:#8a2be2;
+  --radius-sm:4px; --radius-md:6px; --radius-pill:999px;
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-page:10px;
+  --font:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--color-bg-base);color:var(--color-text-primary);font:400 16px/1.6 var(--font)}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wide{max-width:1180px}
+header{padding-block:56px 24px}
+.eyebrow{font:600 12px/1 var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--color-accent-hype)}
+h1{font:800 clamp(34px,6vw,54px)/1.04 var(--font);letter-spacing:-.025em;margin:14px 0 16px;text-wrap:balance}
+h2{font:700 26px/1.2 var(--font);letter-spacing:-.015em;margin:0 0 12px;text-wrap:balance}
+h3{font:600 17px/1.3 var(--font);margin:20px 0 6px}
+p{margin:0 0 12px}
+.lede{font-size:19px;color:var(--color-text-secondary);max-width:62ch}
+section{padding-block:36px;border-top:1px solid var(--color-border-divider)}
+ul,ol{margin:0 0 12px;padding-left:22px}
+li{margin-bottom:6px}
+.muted{color:var(--color-text-muted)}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:.86em}
+.tldr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:24px}
+.tldr div{background:var(--color-bg-surface-1);border-radius:var(--radius-md);padding:14px 16px}
+.tldr b{display:block;font:600 14px/1.3 var(--font);color:var(--color-text-primary);margin-bottom:6px}
+.tldr span{font-size:14px;color:var(--color-text-secondary);line-height:1.5}
+@media (max-width:640px){.tldr{grid-template-columns:1fr}}
+.ds-note{margin-top:20px;font-size:13px;color:var(--color-text-muted);display:flex;gap:8px;align-items:flex-start}
+.ds-note svg{flex:none;margin-top:2px}
+
+/* stage bands */
+.stage{background:var(--color-bg-surface-1);padding-block:32px;margin-block:20px}
+.devices{display:flex;flex-wrap:wrap;gap:28px;justify-content:center;align-items:flex-start}
+.dev{display:flex;flex-direction:column;align-items:center}
+.cap{max-width:320px;font-size:13px;color:var(--color-text-secondary);margin-top:12px;line-height:1.5}
+.cap b{color:var(--color-text-primary)}
+
+/* phone shell: 320 wide screen = 390pt artboard at ~82% */
+.phone{width:336px;max-width:100%;background:#000;border-radius:40px;padding:8px;box-shadow:0 0 0 1px var(--color-border-divider),0 24px 48px -24px rgba(0,0,0,.8)}
+.screen{background:var(--color-bg-base);color:var(--color-text-primary);border-radius:32px;overflow:hidden;height:640px;display:flex;flex-direction:column;font-size:13px;line-height:1.35}
+.statusbar{height:30px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 22px;font:600 12px/1 var(--font)}
+.video{flex:none;height:178px;background:linear-gradient(160deg,#243a52 0%,#2c5a43 55%,#8a7234 100%);position:relative}
+.video .who{position:absolute;left:10px;bottom:8px;font-weight:600;font-size:12px;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.video .live{position:absolute;left:10px;top:8px;background:#eb0400;color:#fff;font:700 10px/1 var(--font);padding:3px 5px;border-radius:var(--radius-sm)}
+
+/* ActionRow */
+.actionrow{flex:none;display:flex;justify-content:flex-end;gap:var(--space-2);padding:8px var(--space-page)}
+.pill{font:600 13px/1 var(--font);border:0;border-radius:var(--radius-pill);padding:9px 14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.pill.primary{background:var(--color-accent-brand);color:var(--color-text-on-accent)}
+.pill.secondary{background:var(--color-bg-button-secondary);color:var(--color-text-primary)}
+.pill.block{width:100%;padding:11px 14px;font-size:14px}
+.pill:focus-visible,.ctl:focus-visible,input[type=range]:focus-visible{outline:2px solid var(--color-accent-hype);outline-offset:2px}
+
+/* LeaderboardStrip */
+.lb{flex:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:6px var(--space-page) 8px;border-bottom:1px solid var(--color-border-divider)}
+.slot{display:flex;align-items:center;gap:6px;min-width:0}
+.medal{flex:none;width:26px;height:26px;border-radius:var(--radius-md);display:grid;place-items:center;font:600 13px/1 var(--font);color:#141418}
+.medal.r1{background:var(--color-rank-1)}.medal.r2{background:var(--color-rank-2)}.medal.r3{background:var(--color-rank-3)}
+.slot div{min-width:0}
+.slot b{display:block;font:600 12px/1.2 var(--font);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot div span{display:flex;align-items:center;gap:3px;font-size:11.5px;color:var(--color-text-secondary)}
+.slot div span svg{width:12px;height:12px}
+.slot .medal{display:flex;align-items:center;justify-content:center;text-align:center;line-height:1;font-variant-numeric:tabular-nums}
+
+
+/* BottomSheet + commerce */
+.dim{flex:none;position:relative}
+.dim::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.sheetb{flex:1;min-height:0;overflow:hidden;background:var(--color-bg-base);border-radius:16px 16px 0 0;margin-top:-14px;position:relative;padding:6px 14px 14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 -1px 0 var(--color-border-divider)}
+.grab{width:36px;height:4px;border-radius:4px;background:var(--color-text-secondary);margin:0 auto 2px;opacity:.8}
+.shead{display:flex;align-items:center;gap:10px}
+.shead h6{flex:1;margin:0;font:600 19px/1.2 var(--font)}
+.switcher{display:flex;gap:2px;background:var(--color-bg-button-secondary);border-radius:var(--radius-pill);padding:3px}
+.switcher span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--color-text-primary)}
+.switcher span.on{background:var(--color-accent-hype)}
+.xbtn{width:30px;height:30px;border-radius:50%;background:var(--color-bg-button-secondary);display:grid;place-items:center;font-size:16px;line-height:1}
+.rbanner{background:var(--color-bg-surface-2);border-radius:var(--radius-md);padding:9px 10px;display:flex;flex-direction:column;gap:6px;box-shadow:inset 0 0 0 1px var(--color-rank-1)}
+.rbanner .top{display:flex;gap:8px;align-items:center;font-size:12.5px}
+.rbanner .top b{font-weight:600}
+.rbanner .mini{height:6px;border-radius:6px;background:var(--color-bg-surface-3);overflow:hidden}
+.rbanner .mini i{display:block;height:100%;background:var(--color-accent-hype)}
+.rbanner .mini i.g{background:var(--color-rank-1);opacity:.85;margin-left:2px}
+.rbanner small{font-size:11px;color:var(--color-text-secondary)}
+.gifts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+/* GiftTierCard: from Midnight Rail (node 8:645), scaled to the 82% phone */
+.gifts{align-items:stretch}
+.gcard{border:1.5px solid #7a3ce8;border-radius:var(--radius-md);overflow:hidden;display:flex;flex-direction:column}
+.gcard .art{position:relative;height:54px;flex:none;background:#2d0f64;display:flex;align-items:center;justify-content:center}
+.gstack{position:relative;width:59px;height:39px}
+.gstack i{position:absolute;background:#fff;opacity:.9;border-radius:3px}
+.gstack i:nth-child(1){left:0;top:11px;width:21px;height:25px}
+.gstack i:nth-child(2){left:18px;top:3px;width:23px;height:33px}
+.gstack i:nth-child(3){left:38px;top:10px;width:21px;height:26px}
+.gbadge{position:absolute;left:5px;top:5px;padding:3px 6px;border-radius:var(--radius-sm);font:700 11px/1 var(--font);white-space:nowrap}
+.gbadge.discount{background:#e91916;color:#fff}
+.gbadge.popular{background:#ffd37a;color:#000}
+.gcard .ginfo{flex:1;background:linear-gradient(180deg,#5c17c5,#402a40);padding:7px 10px;white-space:nowrap}
+.gcard .ginfo b{display:block;font:600 15px/1.25 var(--font);color:var(--color-text-primary)}
+.gcard .ginfo .price{display:block;font:400 15px/1.2 var(--font);color:var(--color-text-primary)}
+.gcard .ginfo s{display:block;font:400 12.5px/1.35 var(--font);color:var(--color-text-secondary)}
+.gsel{border-radius:8px;box-shadow:0 0 0 2px var(--color-rank-1);display:flex}
+.gsel .gcard{flex:1}
+.rankline{display:flex;align-items:center;gap:8px;font-size:12.5px;background:var(--color-bg-surface-1);border-radius:var(--radius-md);padding:8px 10px}
+.rankline .medal{width:22px;height:22px;font-size:11.5px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);color:#141418;flex:none}
+.rankline span b{font-weight:600}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);background:var(--color-bg-surface-1);border-radius:var(--radius-md);padding:3px;font-size:12.5px;text-align:center}
+.tiers span{padding:6px 0;border-radius:var(--radius-sm);color:var(--color-text-secondary)}
+.tiers span.on{background:var(--color-bg-surface-3);color:var(--color-text-primary)}
+.dl{display:flex;flex-direction:column;background:var(--color-bg-surface-1);border-radius:var(--radius-md)}
+.dl div{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;border-bottom:1px solid var(--color-border-divider);font-size:12.5px}
+.dl div:last-child{border-bottom:0}
+.dl dt,.dl span.k{color:var(--color-text-muted)}
+.dl b{font-weight:600;text-align:right}
+.rhead{display:flex;gap:10px;align-items:flex-start}
+.rhead .lvl{flex:none;width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;font:700 16px/1 var(--font);background:var(--color-rank-1);color:#1a1300}
+.rhead h6{margin:0;font:600 17px/1.25 var(--font)}
+.rhead .chip{display:inline-block;margin-top:4px;font:600 10.5px/1 var(--font);padding:4px 8px;border-radius:var(--radius-pill);background:color-mix(in srgb,var(--color-rank-1) 22%,transparent);color:var(--color-rank-1)}
+.quote{font-size:12.5px;color:var(--color-text-secondary);background:var(--color-bg-surface-1);border-radius:var(--radius-md);padding:9px 10px}
+.trow{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px}
+.tg.sm{width:36px;height:22px}.tg.sm::after{width:16px;height:16px}
+.report{text-align:center;font-size:12px;color:var(--color-text-muted);text-decoration:underline}
+
+/* HypeBar: the hype-colored fill IS the progress bar */
+.hypewrap{flex:none;padding:6px 8px 0}
+.hypebar{position:relative;height:55px;background:var(--color-bg-surface-1);border-radius:var(--radius-md) var(--radius-md) 0 0;overflow:hidden;display:flex;align-items:center}
+.hypebar.collapsed{border-radius:var(--radius-md)}
+.hypebar .fill{position:absolute;inset:0 auto 0 0;background:var(--color-accent-hype)}
+.hypebar .l{position:relative;padding-left:12px;flex:1;min-width:0}
+.hypebar .l small{display:block;font-size:11.5px;color:var(--color-text-secondary)}
+.hypebar .l .lv{font-size:15px}
+.hypebar .r{position:relative;text-align:right;padding-right:6px}
+.hypebar .r b{display:block;font:600 11.5px/1.2 var(--font)}
+.hypebar .r span{font-size:15px}
+.hypebar .chev{position:relative;padding:0 10px 0 4px;display:flex}
+.nextline{display:flex;align-items:center;gap:8px;background:var(--color-bg-surface-2);border-radius:0 0 var(--radius-md) var(--radius-md);padding:8px 10px;font-size:12.5px}
+.nextline .k{color:var(--color-rank-1);font-weight:600;white-space:nowrap}
+.nextline .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* HypePanel */
+.panel{flex:1;min-height:0;overflow:hidden;background:var(--color-bg-surface-1);margin:0 8px;padding:8px;display:flex;flex-direction:column;gap:8px;border-radius:0 0 var(--radius-md) var(--radius-md)}
+.remaining{background:var(--color-bg-surface-2);border-radius:var(--radius-sm);padding:8px;text-align:center;font-size:12px;color:var(--color-text-secondary)}
+.remaining b{color:var(--color-text-primary);font-weight:600}
+.sect{font:600 13px/1.3 var(--font);margin-top:2px;display:flex;justify-content:space-between;align-items:baseline}
+.sect small{font-weight:400;color:var(--color-text-muted);font-size:11px}
+.rw{display:flex;gap:8px;align-items:center;padding:7px 8px;border-radius:var(--radius-md);background:var(--color-bg-surface-2)}
+.rw .lvl{flex:none;width:30px;height:30px;border-radius:var(--radius-sm);display:grid;place-items:center;font:700 12px/1 var(--font);background:var(--color-bg-surface-3);color:var(--color-text-secondary)}
+.rw .t{flex:1;min-width:0}
+.rw .t b{display:block;font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rw .t span{font-size:11px;color:var(--color-text-muted)}
+.rw .st{flex:none;display:flex;align-items:center;gap:4px;font:600 11px/1 var(--font);color:var(--color-text-muted)}
+.rw.locked .t b{color:var(--color-text-secondary)}
+.rw.next{box-shadow:inset 0 0 0 1px var(--color-rank-1)}
+.rw.next .lvl{background:var(--color-rank-1);color:#1a1300}
+.rw.next .st{color:var(--color-rank-1)}
+.rw.owed .lvl{background:var(--color-accent-hype);color:#fff}
+.rw.owed .st{color:#b9b1ff}
+.rw.done .lvl{background:var(--color-bg-surface-3);color:var(--color-text-primary)}
+.rw.done .t b{text-decoration:line-through;color:var(--color-text-muted)}
+.rw.done .st{color:var(--color-text-secondary)}
+.rw.overdue .lvl{background:var(--color-rank-3);color:#1f0d03}
+.rw.overdue .st{color:var(--color-rank-3)}
+
+/* UnlockCard */
+.unlock{background:var(--color-bg-surface-2);border-radius:var(--radius-md);padding:10px;display:flex;flex-direction:column;gap:10px}
+.unlock .top{display:flex;gap:10px;align-items:center}
+.unlock .top div{flex:1;min-width:0}
+.unlock b{display:block;font:600 15px/1.25 var(--font)}
+.unlock span{font-size:12px;color:var(--color-text-secondary)}
+.unlock.big b{font-size:16px}
+
+/* InfoCard tip */
+.info{display:flex;align-items:center;gap:8px;background:var(--color-bg-surface-2);border-radius:var(--radius-sm);padding:9px 10px;font-size:12.5px}
+
+/* chat */
+.chat{flex:1;min-height:0;overflow:hidden;padding:6px var(--space-page);display:flex;flex-direction:column;justify-content:flex-end;gap:6px;font-size:12.5px}
+.msg{display:flex;gap:6px;align-items:flex-start;margin:0}
+.msg i{flex:none;width:14px;height:14px;border-radius:3px;background:var(--color-mock-user-1);margin-top:1px}
+.msg .n{font-weight:600}
+.n1{color:#b57bff}.n2{color:#5fb8ff}.n3{color:#62d48a}
+.notice{flex:none;display:flex;gap:8px;align-items:flex-start;padding:10px var(--space-page);border-top:1px solid var(--color-border-divider);font-size:12.5px}
+.notice b{font-weight:600}
+.notice.hype{background:color-mix(in srgb,var(--color-accent-hype) 22%,var(--color-bg-base));border-top-color:var(--color-accent-hype)}
+.notice .tx{flex:1;min-width:0}
+.notice .tx span{color:var(--color-text-secondary)}
+.inputbar{flex:none;display:flex;align-items:center;gap:8px;padding:8px var(--space-page) 14px}
+.inputbar .pts{display:flex;align-items:center;gap:5px;font-weight:600;font-size:12px}
+.inputbar .pts i{width:18px;height:18px;border-radius:50%;background:var(--color-accent-brand)}
+.inputbar .field{flex:1;background:var(--color-bg-surface-2);border-radius:var(--radius-md);padding:9px 10px;color:var(--color-text-secondary);display:flex;justify-content:space-between;align-items:center}
+.ovl{position:absolute;left:8px;right:8px;bottom:8px}
+
+/* desktop dashboard mock */
+.desk{width:100%;max-width:860px;background:var(--color-bg-base);border:1px solid var(--color-border-divider);border-radius:10px;overflow:hidden;box-shadow:0 24px 48px -28px rgba(0,0,0,.9)}
+.desk-top{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--color-border-divider);font-size:12px;color:var(--color-text-muted);background:var(--color-bg-surface-1)}
+.desk-top i{width:9px;height:9px;border-radius:50%;background:var(--color-bg-surface-3)}
+.desk-body{display:grid;grid-template-columns:180px minmax(0,1fr);min-height:440px}
+.nav{border-right:1px solid var(--color-border-divider);padding:14px 10px;font-size:13px;display:flex;flex-direction:column;gap:2px;background:var(--color-bg-surface-1)}
+.nav span{padding:7px 10px;border-radius:var(--radius-md);color:var(--color-text-secondary)}
+.nav span.on{background:var(--color-bg-surface-3);color:var(--color-text-primary);font-weight:600;box-shadow:inset 3px 0 0 var(--color-accent-brand)}
+.nav small{font:600 10.5px/1 var(--font);text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-muted);padding:12px 10px 6px}
+.main{padding:18px 20px;min-width:0}
+.main h5{font:700 20px/1.2 var(--font);margin:0 0 4px}
+.track{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.lrow{display:grid;grid-template-columns:58px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;background:var(--color-bg-surface-1);border-radius:var(--radius-md);font-size:13.5px}
+.lrow .lv{font:700 14px/1 var(--font)}
+.lrow .lv small{display:block;font:400 11px/1.3 var(--font);color:var(--color-text-muted);margin-top:3px}
+.lrow em{font-style:normal;color:var(--color-text-muted);font-size:12.5px;display:block}
+.lrow.empty{background:transparent;border:1px dashed var(--color-border-divider);color:var(--color-text-secondary)}
+.tag{font:600 11px/1 var(--font);padding:5px 9px;border-radius:var(--radius-pill);background:var(--color-bg-surface-3);color:var(--color-text-secondary);white-space:nowrap}
+.tag.live{background:color-mix(in srgb,var(--color-accent-hype) 30%,transparent);color:#c8c1ff}
+.editor{margin-top:14px;border:1px solid var(--color-accent-hype);border-radius:var(--radius-md);padding:14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;background:var(--color-bg-surface-1)}
+.editor .full{grid-column:1/-1}
+.f label,.f .lab{display:block;font:600 12px/1.3 var(--font);margin-bottom:5px}
+.ctl{width:100%;font:400 13.5px/1.3 var(--font);padding:9px 10px;border:1px solid var(--color-border-divider);border-radius:var(--radius-md);background:var(--color-bg-surface-2);color:var(--color-text-primary)}
+.f .hint{font-size:11.5px;color:var(--color-text-muted);margin-top:4px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg span{font-size:12px;padding:6px 11px;border-radius:var(--radius-pill);background:var(--color-bg-button-secondary);color:var(--color-text-secondary)}
+.seg span.on{background:var(--color-accent-hype);color:#fff;font-weight:600}
+.toggle{display:flex;align-items:center;gap:10px;font-size:13px}
+.tg{width:40px;height:24px;border-radius:var(--radius-pill);background:var(--color-accent-brand);position:relative;flex:none}
+.tg::after{content:"";position:absolute;right:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff}
+.editor .acts{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+@media (max-width:720px){.desk-body{grid-template-columns:1fr}.nav{display:none}.editor{grid-template-columns:1fr}}
+
+/* sim control */
+.sim{display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:center;margin-bottom:22px;font-size:14px}
+.sim input{width:220px;max-width:60vw;accent-color:var(--color-accent-hype)}
+.sim output{font:600 13px/1 var(--font);background:var(--color-bg-surface-2);padding:7px 11px;border-radius:var(--radius-pill);font-variant-numeric:tabular-nums}
+
+/* tables */
+.tbl{overflow-x:auto;margin:12px 0 16px;border-radius:var(--radius-md);background:var(--color-bg-surface-1)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--color-border-divider);vertical-align:top}
+th{font:600 11px/1.2 var(--font);text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-muted)}
+tr:last-child td{border-bottom:0}
+.states{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 16px;font-size:13px}
+.states .arrow{color:var(--color-text-muted)}
+.st-chip{padding:6px 11px;border-radius:var(--radius-pill);background:var(--color-bg-surface-2);font-weight:600}
+.st-chip.n{color:var(--color-rank-1)}.st-chip.o{color:#c8c1ff}.st-chip.r{color:var(--color-rank-3)}
+footer{padding-block:32px 56px;font-size:13px;color:var(--color-text-muted)}
+svg.i{width:16px;height:16px;flex:none}
+@media (prefers-reduced-motion:no-preference){.hypebar .fill{transition:width .4s ease}}
+</style>
+<style>body{margin:0}</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-gift" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7c-1-3-5-4-5-1.5S10 7 12 7zm0 0c1-3 5-4 5-1.5S14 7 12 7z"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M12 11v6M12 7.2v.1" stroke="#0e0e10" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M6 15l6-6 6 6"/></symbol>
+    <symbol id="i-bits" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 3l7 9-7 9-7-9zM5 12h14"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M12 14v4M8 20h8"/></symbol>
+    <symbol id="i-emote" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.5 14.5c1.8 2 5.2 2 7 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="10" r="1.2" fill="currentColor"/><circle cx="15" cy="10" r="1.2" fill="currentColor"/></symbol>
+    <symbol id="i-cheer" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 20l5-12 7 7zM14 4l1 2M19 5l-2 2M20 10h-2"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="19" r="1.8" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<header class="wrap">
+  <div class="eyebrow">Product concept · Mobile Hype Train</div>
+  <h1>Creator Rewards on the Hype Train</h1>
+  <p class="lede">Streamers attach their own challenges to Hype Train levels. When chat pushes the train to level 5, the streamer has to drop every gun in their Fortnite loadout. Viewers on mobile can see what is coming next and what they have already unlocked.</p>
+  <div class="tldr">
+    <div><b>Creator sets it up</b><span>A new Rewards tab in the Hype Train settings of the creator dashboard. One reward per level.</span></div>
+    <div><b>Viewers chase it</b><span>The HypeBar gains a "next reward" line, and the HypePanel gains a Streamer Rewards section.</span></div>
+    <div><b>Streamer pays it off</b><span>Unlocked rewards land in a queue. The streamer or a mod taps Done, and chat gets a NoticeBar callout.</span></div>
+  </div>
+  <p class="ds-note"><svg class="i" style="color:var(--color-text-muted)"><use href="#i-info"/></svg><span>Mockups are built from the Midnight Rail design system: HypeBar, HypePanel, RemainingCard, UnlockCard, InfoCard, ActionRow, ChatMessage, NoticeBar and ChatInputBar, with its color, spacing and type tokens. New pieces for this feature are marked "new" in the captions.</span></p>
+</header>
+
+<div class="wrap">
+<section>
+  <h2>Why this matters</h2>
+  <p>Hype Train rewards today are emotes and badges set by the platform, and they are the same on every channel. The levels feel like a progress bar more than a moment. Letting creators add their own payoffs turns each level into something chat can see happen on stream, which is the part viewers actually rally around.</p>
+  <p>Mobile is where the gap is widest. The HypeBar shows a level, a timer and a percentage, and nothing about why the next level is worth it. This concept gives that bar a goal to point at.</p>
+  <h3>Goals</h3>
+  <ul>
+    <li>Creators can add, edit and reorder custom rewards per level in under a minute.</li>
+    <li>Mobile viewers always see the next reward and how close the train is to it.</li>
+    <li>Streamers can see what they owe and clear it without leaving the game for long.</li>
+  </ul>
+  <h3>Out of scope for v1</h3>
+  <ul>
+    <li>Rewards that trigger automatically through game integrations or Extensions.</li>
+    <li>Viewer voting on which reward to attach to which level.</li>
+    <li>Rewards with real-world costs such as giveaways or merch (those go through existing giveaway rules).</li>
+  </ul>
+</section>
+
+<section>
+  <h2>1. Setting up rewards in the creator dashboard</h2>
+  <p>A new <b>Rewards</b> tab sits next to the existing Hype Train settings (difficulty, cooldown, contribution types). It shows the level track as a list. Each row is a level, and a level without a custom reward still shows the default emote reward so the creator knows nothing is lost by leaving it empty.</p>
+</section>
+</div>
+
+<div class="stage">
+  <div class="wrap wide">
+    <div class="devices">
+      <div class="dev" style="width:100%;max-width:860px">
+        <div class="desk" role="img" aria-label="Mockup of the creator dashboard Rewards tab">
+          <div class="desk-top"><i></i><i></i><i></i><span style="margin-left:8px">Creator Dashboard / Settings / Hype Train</span></div>
+          <div class="desk-body">
+            <div class="nav">
+              <small>Settings</small>
+              <span>Stream</span><span>Moderation</span><span>Channel points</span>
+              <small>Hype Train</small>
+              <span>General</span><span class="on">Rewards</span><span>History</span>
+            </div>
+            <div class="main">
+              <h5>Hype Train rewards</h5>
+              <div class="muted" style="font-size:13px">Add a challenge you will do on stream when the train reaches a level. Viewers see these on every device.</div>
+              <div class="track">
+                <div class="lrow"><div class="lv">Lvl 2<small>~40 subs</small></div><div><b>Chat picks my next drop spot</b><em>Gameplay · Due this match</em></div><span class="tag live">Live</span></div>
+                <div class="lrow"><div class="lv">Lvl 3<small>~80 subs</small></div><div><b>Pickaxe-only for one fight</b><em>Gameplay · Due this match</em></div><span class="tag live">Live</span></div>
+                <div class="lrow empty"><div class="lv">Lvl 4<small>~130 subs</small></div><div>Default emote reward only<em>+ Add a custom reward</em></div><span class="tag">Default</span></div>
+              </div>
+              <div class="editor" aria-label="Reward editor, editing level 5">
+                <div class="f"><label for="m-lvl">Level</label><select class="ctl" id="m-lvl"><option>Lvl 5</option></select><div class="hint">About 190 subs on Normal difficulty</div></div>
+                <div class="f"><label for="m-due">Due by</label><select class="ctl" id="m-due"><option>Next match</option><option>End of stream</option><option>Next stream</option></select></div>
+                <div class="f full"><label for="m-title">Reward title</label><input class="ctl" id="m-title" value="Drop ALL my guns and finish the match unarmed" maxlength="60"><div class="hint">47 / 60 characters · shown in the HypeBar</div></div>
+                <div class="f full"><span class="lab">Category</span><div class="seg"><span class="on">Gameplay</span><span>On camera</span><span>Stream change</span><span>Community</span></div></div>
+                <div class="f full"><label for="m-desc">Details for viewers (optional)</label><input class="ctl" id="m-desc" value="Melee and items only until I'm eliminated or win."></div>
+                <div class="f full toggle"><span class="tg" aria-hidden="true"></span>Let my mods mark this reward done</div>
+                <div class="acts"><button class="pill secondary" type="button">Preview on mobile</button><button class="pill primary" type="button">Submit for review</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cap" style="max-width:640px;text-align:center"><b>Dashboard Rewards tab (new).</b> Levels show an estimated sub-equivalent for the channel's difficulty so creators can price their challenges. Buttons and toggle use the system's pill Button and Toggle.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+<section style="border-top:0;padding-top:8px">
+  <h3>Setup rules</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Field</th><th>Rule</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Level</td><td>1 reward per level, levels 1 to 25. Levels above the record can be filled in ahead of time.</td><td>Keeps the HypePanel to one row per level.</td></tr>
+      <tr><td>Title</td><td>Required, 60 characters max, standard AutoMod text filters.</td><td>Fits the HypeBar's next-reward line on a 390pt screen.</td></tr>
+      <tr><td>Details</td><td>Optional, 140 characters.</td><td>Room for the fine print, such as "until eliminated".</td></tr>
+      <tr><td>Category</td><td>Gameplay, On camera, Stream change, Community.</td><td>Lets Trust &amp; Safety sample by risk.</td></tr>
+      <tr><td>Due by</td><td>Next match, End of stream, or Next stream.</td><td>Sets viewer expectations and drives the overdue state.</td></tr>
+      <tr><td>Review</td><td>New and edited rewards pass an automated check, then go live. Flagged ones wait for a human.</td><td>Blocks rewards that break community guidelines or put the streamer at risk.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Creators can also save <b>reward sets</b> per category (one for Fortnite, one for Just Chatting), and the right set switches on when they change category. Editing is locked while a train is running so a reward can't be swapped out after chat has started paying for it.</p>
+</section>
+
+<section>
+  <h2>2. What viewers see on mobile</h2>
+  <p>The HypeBar keeps its size and layout. Under it, a slim line names the next reward. Expanding the bar opens the HypePanel, where a new Streamer Rewards section sits between the RemainingCard and Unlockable Emotes, and the UnlockCard sells the next reward instead of the next emote. When a level is reached, an UnlockCard rises over the video and a NoticeBar pins the reward in chat.</p>
+</section>
+</div>
+
+<div class="stage">
+  <div class="wrap wide">
+    <div class="sim">
+      <label for="sim">Try it: train level</label>
+      <input type="range" id="sim" min="1" max="7" value="4" step="1">
+      <output id="simOut" for="sim">Lvl 4 · 62%</output>
+    </div>
+    <div class="devices">
+      <div class="dev">
+        <div class="phone" role="img" aria-label="Phone mockup: viewer watching stream with collapsed HypeBar">
+          <div class="screen">
+            <div class="statusbar"><span>9:41</span><span>●●● ▮</span></div>
+            <div class="video"><span class="live">LIVE</span><span class="who">DropZoneDana · Fortnite</span></div>
+            <div class="actionrow"><button class="pill secondary" type="button">Subscribe</button><button class="pill primary" type="button">Follow</button></div>
+            <div class="lb"><div class="slot"><span class="medal r1">1</span><div><b>mossy</b><span><svg class="i"><use href="#i-gift"/></svg>25</span></div></div><div class="slot"><span class="medal r2">2</span><div><b>deathcult_99</b><span><svg class="i"><use href="#i-gift"/></svg>20</span></div></div><div class="slot"><span class="medal r3">3</span><div><b>Ratchetvibes</b><span><svg class="i"><use href="#i-gift"/></svg>20</span></div></div></div>
+            <div class="hypewrap">
+              <div class="hypebar"><div class="fill" data-fill style="width:62%"></div><div class="l"><small>Hype Train</small><span class="lv" data-lvl>Lvl 4</span></div><div class="r"><b>3:41</b><span data-pct>62%</span></div><div class="chev"><svg class="i"><use href="#i-down"/></svg></div></div>
+              <div class="nextline"><svg class="i" style="color:var(--color-rank-1)"><use href="#i-gift"/></svg><span class="k" data-nextk>Lvl 5</span><span class="t" data-nextt>Drop ALL my guns</span></div>
+            </div>
+            <div class="chat">
+              <p class="msg"><i></i><span><span class="n n1">kai_builds:</span> LETS GOOO only a few more subs</span></p>
+              <p class="msg"><i style="background:#3b82f6"></i><span><span class="n n2">mossy:</span> gifted 5 subs to the community!</span></p>
+              <p class="msg"><i style="background:#22a35a"></i><span><span class="n n3">rengoku_44:</span> she's gonna have to fight with a pickaxe lmao</span></p>
+            </div>
+            <div class="inputbar"><span class="pts"><i></i>320</span><span class="field">Send Chat <span style="display:flex;gap:8px"><svg class="i"><use href="#i-cheer"/></svg><svg class="i"><use href="#i-emote"/></svg></span></span><svg class="i"><use href="#i-more"/></svg></div>
+          </div>
+        </div>
+        <div class="cap"><b>Collapsed HypeBar.</b> The LeaderboardStrip sits above it, as in the system's review screen. The HypeBar is the same as today, where the hype fill is the progress. The <b>next-reward line (new)</b> is attached under it in surface-2, with the level in rank-1 gold so it reads as the goal.</div>
+      </div>
+
+      <div class="dev">
+        <div class="phone" role="img" aria-label="Phone mockup: expanded HypePanel with Streamer Rewards section">
+          <div class="screen">
+            <div class="statusbar"><span>9:41</span><span>●●● ▮</span></div>
+            <div class="video" style="height:92px"><span class="live">LIVE</span></div>
+            <div class="lb" style="border-bottom:0"><div class="slot"><span class="medal r1">1</span><div><b>mossy</b><span><svg class="i"><use href="#i-gift"/></svg>25</span></div></div><div class="slot"><span class="medal r2">2</span><div><b>deathcult_99</b><span><svg class="i"><use href="#i-gift"/></svg>20</span></div></div><div class="slot"><span class="medal r3">3</span><div><b>Ratchetvibes</b><span><svg class="i"><use href="#i-gift"/></svg>20</span></div></div></div>
+            <div class="hypewrap"><div class="hypebar"><div class="fill" data-fill style="width:62%"></div><div class="l"><small>Hype Train</small><span class="lv" data-lvl>Lvl 4</span></div><div class="r"><b>3:41</b><span data-pct>62%</span></div><div class="chev"><svg class="i"><use href="#i-up"/></svg></div></div></div>
+            <div class="panel">
+              <div class="remaining"><b><svg class="i" style="vertical-align:-3px;width:14px;height:14px"><use href="#i-bits"/></svg> 1.2K Bits</b> or <b><svg class="i" style="vertical-align:-3px;width:14px;height:14px"><use href="#i-gift"/></svg> 3 Subs</b><br><span data-remain>remaining to complete level 4</span></div>
+              <div class="sect">Streamer Rewards <small>DropZoneDana will do these</small></div>
+              <div id="track" style="display:flex;flex-direction:column;gap:6px"></div>
+              <div class="unlock"><div class="top"><div><b data-cta>Unlock: Drop ALL my guns</b><span>Sub, Gift, or Cheer to reach Lvl 5</span></div><svg class="i" style="width:20px;height:20px"><use href="#i-info"/></svg></div><button class="pill primary block" type="button"><svg class="i"><use href="#i-gift"/></svg>Gift 1 sub</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="cap"><b>HypePanel with Streamer Rewards (new section).</b> Rows reuse the panel's surface-2 tiles. Gold outline marks the next reward, hype purple marks unlocked and owed, a check marks done. The UnlockCard copy now points at the reward.</div>
+      </div>
+
+      <div class="dev">
+        <div class="phone" role="img" aria-label="Phone mockup: level 5 unlock moment">
+          <div class="screen">
+            <div class="statusbar"><span>9:41</span><span>●●● ▮</span></div>
+            <div class="video" style="height:236px"><span class="live">LIVE</span><span class="who" style="bottom:auto;top:8px;left:auto;right:10px">DropZoneDana</span>
+              <div class="ovl"><div class="unlock big" style="box-shadow:0 10px 30px rgba(0,0,0,.5)"><div class="top"><div><b>Lvl 5 reached!</b><span>DropZoneDana has to drop ALL their guns this match</span></div><svg class="i" style="width:28px;height:28px;color:var(--color-rank-1)"><use href="#i-trophy"/></svg></div></div></div>
+            </div>
+            <div class="lb" style="border-bottom:0"><div class="slot"><span class="medal r1">1</span><div><b>celestialbits</b><span><svg class="i"><use href="#i-bits"/></svg>5.2K</span></div></div><div class="slot"><span class="medal r2">2</span><div><b>mossy</b><span><svg class="i"><use href="#i-bits"/></svg>3K</span></div></div><div class="slot"><span class="medal r3">3</span><div><b>rengoku_44</b><span><svg class="i"><use href="#i-bits"/></svg>1.1K</span></div></div></div>
+            <div class="hypewrap"><div class="hypebar collapsed"><div class="fill" style="width:6%"></div><div class="l"><small>Hype Train</small><span class="lv">Lvl 5</span></div><div class="r"><b>5:00</b><span>6%</span></div><div class="chev"><svg class="i"><use href="#i-down"/></svg></div></div></div>
+            <div class="chat">
+              <p class="msg"><i style="background:#22a35a"></i><span><span class="n n3">rengoku_44:</span> NO GUNS NO GUNS</span></p>
+              <p class="msg"><i style="background:#3b82f6"></i><span><span class="n n2">mossy:</span> clip it</span></p>
+              <p class="msg"><i></i><span><span class="n n1">kai_builds:</span> we did that</span></p>
+            </div>
+            <div class="notice hype"><svg class="i" style="color:#c8c1ff"><use href="#i-gift"/></svg><div class="tx"><b>Reward owed: Drop ALL my guns</b><br><span>Unlocked at Lvl 5 · 212 people helped</span></div></div>
+            <div class="inputbar"><span class="pts"><i></i>320</span><span class="field">Send Chat <span style="display:flex;gap:8px"><svg class="i"><use href="#i-cheer"/></svg><svg class="i"><use href="#i-emote"/></svg></span></span><svg class="i"><use href="#i-more"/></svg></div>
+          </div>
+        </div>
+        <div class="cap"><b>Unlock moment.</b> An UnlockCard rises over the video for 6 seconds. The LeaderboardStrip switches to Bits during the train, so top cheerers get credit for the unlock. A NoticeBar in a <b>hype variant (new)</b> stays pinned above the chat input until the reward is done.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+<section style="border-top:0;padding-top:8px">
+  <h3>Viewer details</h3>
+  <ul>
+    <li>If the channel has no custom rewards, the HypeBar and HypePanel look exactly like today.</li>
+    <li>When several levels unlock in one big gift bomb, UnlockCards queue and each shows for 3 seconds instead of 6.</li>
+    <li>After the train ends, the Streamer Rewards section stays reachable from the channel page for the rest of the stream as "Rewards owed", so late viewers can see what is coming.</li>
+    <li>Push notifications are opt-in: "Notify me when DropZoneDana does a Hype Train reward" helps viewers catch the payoff live.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Paying toward a reward, and checking the details</h2>
+  <p>Two more viewer screens. The gift sheet is where viewers decide to spend, so it names the reward their gift unlocks. The reward detail sheet opens when a viewer taps a row in Streamer Rewards, and it answers what exactly the streamer will do, when, and whether they usually follow through.</p>
+</section>
+</div>
+
+<div class="stage">
+  <div class="wrap wide">
+    <div class="devices">
+      <div class="dev">
+        <div class="phone" role="img" aria-label="Phone mockup: Gift a Sub bottom sheet showing which gift unlocks the level 5 reward">
+          <div class="screen">
+            <div class="statusbar"><span>9:41</span><span>●●● ▮</span></div>
+            <div class="video dim" style="height:120px"></div>
+            <div class="sheetb">
+              <div class="grab"></div>
+              <div class="shead"><div class="switcher"><span><svg class="i" style="width:14px;height:14px"><use href="#i-trophy"/></svg></span><span class="on"><svg class="i" style="width:14px;height:14px"><use href="#i-gift"/></svg></span></div><h6>Gift a Sub</h6><span class="xbtn">×</span></div>
+              <div class="rbanner">
+                <div class="top"><svg class="i" style="color:var(--color-rank-1)"><use href="#i-gift"/></svg><span><b>4 subs unlocks Lvl 5:</b> Drop ALL my guns</span></div>
+                <div class="mini" style="display:flex"><i style="width:62%"></i><i class="g" style="width:38%"></i></div>
+                <small>5 Gifts finishes the level on its own</small>
+              </div>
+              <div class="gifts">
+                <div class="gcard"><div class="art"><div class="gstack"><i></i><i></i><i></i></div></div><div class="ginfo"><b>1 Gift</b><span class="price">$5.99</span></div></div>
+                <div class="gsel"><div class="gcard"><div class="art"><div class="gstack"><i></i><i></i><i></i></div><span class="gbadge discount">SAVE $10</span></div><div class="ginfo"><b>5 Gifts</b><span class="price">$29.95</span><s>$39.95</s></div></div></div>
+                <div class="gcard"><div class="art"><div class="gstack"><i></i><i></i><i></i></div><span class="gbadge popular">POPULAR</span></div><div class="ginfo"><b>10 Gifts</b><span class="price">$59.90</span><s>$79.90</s></div></div>
+              </div>
+              <div class="tiers"><span class="on">Tier 1</span><span>Tier 2</span><span>Tier 3</span></div>
+              <div class="rankline"><span class="medal" style="background:var(--color-rank-1)">1</span><span>Gifting 5 puts you <b>#1 on the leaderboard</b></span></div>
+              <div class="rankline"><svg class="i" style="color:var(--color-text-secondary)"><use href="#i-emote"/></svg><span>Plus a random Hype Train emote for you</span></div>
+              <button class="pill primary block" type="button"><svg class="i"><use href="#i-gift"/></svg>Gift 5 subs · $29.95</button>
+              <span class="report" style="text-decoration:none">Gifts go to random viewers in chat</span>
+            </div>
+          </div>
+        </div>
+        <div class="cap"><b>Gift sheet with reward context.</b> BottomSheet, SheetSwitcher, GiftTierCard and TierSelector are used as they are in the system. New: a <b>reward banner</b> showing how far the gift moves the bar, a gold ring on the selected gift, and a line showing where the gift puts you on the leaderboard.</div>
+      </div>
+
+      <div class="dev">
+        <div class="phone" role="img" aria-label="Phone mockup: reward detail sheet for the level 5 reward">
+          <div class="screen">
+            <div class="statusbar"><span>9:41</span><span>●●● ▮</span></div>
+            <div class="video dim" style="height:110px"></div>
+            <div class="sheetb">
+              <div class="grab"></div>
+              <div class="rhead"><div class="lvl">5</div><div style="flex:1;min-width:0"><h6>Drop ALL my guns and finish the match unarmed</h6><span class="chip">Next · 38% to go</span></div><span class="xbtn">×</span></div>
+              <div class="quote">"Melee and items only until I'm eliminated or win." <span style="color:var(--color-text-muted)">— DropZoneDana</span></div>
+              <div class="dl">
+                <div><span class="k">Unlocks at</span><b>Lvl 5 · 4 subs or 1.8K Bits</b></div>
+                <div><span class="k">Due</span><b>The match it unlocks in</b></div>
+                <div><span class="k">Category</span><b>Gameplay</b></div>
+                <div><span class="k">Track record</span><b>18 of 19 rewards done</b></div>
+              </div>
+              <div class="trow"><span>Notify me when it happens</span><span class="tg sm" aria-hidden="true"></span></div>
+              <button class="pill primary block" type="button" style="margin-top:auto"><svg class="i"><use href="#i-gift"/></svg>Help unlock it</button>
+              <span class="report">Report this reward</span>
+            </div>
+          </div>
+        </div>
+        <div class="cap"><b>Reward detail (new sheet).</b> Built on the BottomSheet. It shows the streamer's own fine print, what it takes to unlock, the due rule and their track record. "Help unlock it" opens the gift sheet, and the toggle sends a push when the streamer marks it done.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+<section>
+  <h2>3. How the streamer marks a reward as done</h2>
+  <p>Unlocked rewards go into a <b>Rewards queue</b>. It lives in three places so the streamer never has to tab out of the game: the Stream Manager panel on desktop, the Twitch Studio dock, and the Stream Manager tab in the mobile app. Mods can mark rewards done too, which is how most streamers mid-game will actually use it.</p>
+</section>
+</div>
+
+<div class="stage">
+  <div class="wrap wide">
+    <div class="devices">
+      <div class="dev">
+        <div class="phone" role="img" aria-label="Phone mockup: streamer rewards queue in Stream Manager">
+          <div class="screen">
+            <div class="statusbar"><span>9:41</span><span>●●● ▮</span></div>
+            <div style="padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--color-border-divider)"><b style="font-size:15px">Stream Manager</b><span style="color:var(--color-text-muted);font-size:11.5px">Live · 1:12:40</span></div>
+            <div class="panel" style="margin:10px;border-radius:var(--radius-md);gap:8px">
+              <div class="sect">Rewards queue <small>Today's train · Lvl 5</small></div>
+              <div class="unlock"><div class="top"><div><b>Drop ALL my guns</b><span>Lvl 5 · Due this match · unlocked 2m ago</span></div></div>
+                <div style="display:flex;gap:8px"><button class="pill primary" type="button" style="flex:1"><svg class="i"><use href="#i-check"/></svg>Mark done</button><button class="pill secondary" type="button">Push to next stream</button></div></div>
+              <div class="rw owed"><div class="lvl">4</div><div class="t"><b>Default: Hype Train emote</b><span>Granted automatically</span></div><span class="st">Auto</span></div>
+              <div class="rw done"><div class="lvl">3</div><div class="t"><b>Pickaxe-only for one fight</b><span>Done by mod_lena · 9m ago</span></div><span class="st"><svg class="i" style="width:14px;height:14px"><use href="#i-check"/></svg>Done</span></div>
+              <div class="rw done"><div class="lvl">2</div><div class="t"><b>Chat picks my drop spot</b><span>Done · 21m ago</span></div><span class="st"><svg class="i" style="width:14px;height:14px"><use href="#i-check"/></svg>Done</span></div>
+              <div class="info"><svg class="i" style="color:var(--color-rank-1)"><use href="#i-trophy"/></svg>18 of 19 rewards done so far. Viewers see this.</div>
+            </div>
+          </div>
+        </div>
+        <div class="cap"><b>Rewards queue (new screen).</b> The oldest owed reward sits on top as an UnlockCard with large pill buttons. Below it are reward rows from the HypePanel and an InfoCard tip showing the completion rate.</div>
+      </div>
+      <div class="dev">
+        <div class="phone" role="img" aria-label="Phone mockup: viewer chat after reward is marked done">
+          <div class="screen">
+            <div class="statusbar"><span>9:41</span><span>●●● ▮</span></div>
+            <div class="video"><span class="live">LIVE</span><span class="who">DropZoneDana · Fortnite</span></div>
+            <div class="actionrow"><button class="pill secondary" type="button">Subscribe</button><button class="pill primary" type="button">Follow</button></div>
+            <div class="lb"><div class="slot"><span class="medal r1">1</span><div><b>mossy</b><span><svg class="i"><use href="#i-gift"/></svg>30</span></div></div><div class="slot"><span class="medal r2">2</span><div><b>deathcult_99</b><span><svg class="i"><use href="#i-gift"/></svg>20</span></div></div><div class="slot"><span class="medal r3">3</span><div><b>kai_builds</b><span><svg class="i"><use href="#i-gift"/></svg>18</span></div></div></div>
+            <div class="chat">
+              <p class="msg"><i style="background:#22a35a"></i><span><span class="n n3">rengoku_44:</span> she actually got a kill with the pickaxe</span></p>
+              <p class="msg"><i style="background:#3b82f6"></i><span><span class="n n2">mossy:</span> best 5 subs I ever spent</span></p>
+            </div>
+            <div class="notice"><svg class="i"><use href="#i-check"/></svg><div class="tx"><b>Reward done: Drop ALL my guns</b><br><span>DropZoneDana paid off Lvl 5</span></div><button class="pill primary" type="button" style="padding:7px 12px">Clip it</button></div>
+            <div class="inputbar"><span class="pts"><i></i>320</span><span class="field">Send Chat <span style="display:flex;gap:8px"><svg class="i"><use href="#i-cheer"/></svg><svg class="i"><use href="#i-emote"/></svg></span></span><svg class="i"><use href="#i-more"/></svg></div>
+          </div>
+        </div>
+        <div class="cap"><b>Done callout.</b> The pinned NoticeBar switches back to the standard variant with a check and a "Clip it" button, because the payoff is the most clippable moment of the stream.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+<section style="border-top:0;padding-top:8px">
+  <h3>Reward lifecycle</h3>
+  <div class="states"><span class="st-chip">Draft</span><span class="arrow">→</span><span class="st-chip">In review</span><span class="arrow">→</span><span class="st-chip n">Live</span><span class="arrow">→</span><span class="st-chip o">Unlocked</span><span class="arrow">→</span><span class="st-chip">Done</span><span class="muted">or</span><span class="st-chip r">Overdue</span><span class="muted">or</span><span class="st-chip">Skipped</span></div>
+  <ul>
+    <li><b>Overdue</b>: the due window passed without a Done tap. The reward row turns rank-3 copper, viewers see "Owed since last stream", and the streamer gets a reminder at the start of the next stream.</li>
+    <li><b>Skipped</b>: the streamer can skip with a reason chosen from a short list (game ended, technical issue, unsafe). Skips are shown to viewers honestly as "Skipped: game ended".</li>
+    <li>A creator's public <b>completion rate</b> (for example "18 of 19 rewards done") is shown in the Streamer Rewards section once they have 5 or more unlocks. It gives viewers a reason to trust the promise.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Design system changes</h2>
+  <p>Most of the feature reuses Midnight Rail components as they are. These are the additions it needs:</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Component</th><th>Change</th></tr></thead>
+    <tbody>
+      <tr><td>HypeBar</td><td>New optional <span class="mono">nextReward</span> slot under the collapsed bar (surface-2, rank-1 level label).</td></tr>
+      <tr><td>RewardRow</td><td>New component with <span class="mono">status=locked | next | owed | done | overdue</span>, built on surface-2 with a 30pt level tile.</td></tr>
+      <tr><td>UnlockCard</td><td>Copy variant for a creator reward. Also used as the over-video unlock toast and the queue's top item.</td></tr>
+      <tr><td>NoticeBar</td><td>New <span class="mono">type=hype</span> variant (accent-hype tint and top border) for owed rewards, and a trailing button slot for "Clip it".</td></tr>
+      <tr><td>GiftTierCard</td><td>Used as is. Only addition is a selected state: a 2pt rank-1 ring outside the card.</td></tr>
+      <tr><td>RewardBanner</td><td>New header for the gift and Bits sheets: reward name plus a bar showing current progress and how much the selected gift adds.</td></tr>
+      <tr><td>RewardDetail sheet</td><td>New BottomSheet content: level tile, title, creator quote, detail list, notify toggle, primary CTA and report link.</td></tr>
+      <tr><td>Tokens</td><td>No new colors. Rank-1 gold means "next", accent-hype means "unlocked", rank-3 copper means "overdue".</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Edge cases</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Situation</th><th>Behaviour</th></tr></thead>
+    <tbody>
+      <tr><td>Train hits level 5, then the match ends before guns are dropped</td><td>Reward rolls to the next match automatically, since "Next match" means the next one the streamer can play.</td></tr>
+      <tr><td>Streamer changes game mid-train</td><td>The train keeps the reward set it started with. The new set applies from the next train.</td></tr>
+      <tr><td>Stream ends with rewards owed</td><td>They move to "Next stream" and show on the channel page until done or skipped.</td></tr>
+      <tr><td>Reward edited while a train is running</td><td>Editing is locked during a train and for 5 minutes after it ends.</td></tr>
+      <tr><td>A reward is unsafe or breaks guidelines</td><td>Blocked at review. Viewers can report a reward from the HypePanel, and Trust &amp; Safety can remove it live.</td></tr>
+      <tr><td>Train beats the all-time record</td><td>Levels without a custom reward get the default emote reward, same as today.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Data and events</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Object / event</th><th>Key fields</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">hype_reward</td><td>channel_id, set_id, level, title, details, category, due_policy, review_state</td></tr>
+      <tr><td class="mono">hype_reward_unlock</td><td>train_id, reward_id, unlocked_at, contributor_count, state, due_at, completed_by, completed_at, skip_reason</td></tr>
+      <tr><td class="mono">EventSub: hype_train.reward_unlocked</td><td>Lets overlays and bots react, for example a stream alert when level 5 is reached.</td></tr>
+      <tr><td class="mono">EventSub: hype_train.reward_completed</td><td>Lets overlays show a "paid off" animation.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>How we'd know it works</h2>
+  <ul>
+    <li>Hype Train average peak level on channels with custom rewards versus a matched control.</li>
+    <li>HypeBar expand rate on channels with custom rewards.</li>
+    <li>Share of unlocked rewards marked done within their due window (target 85% or higher).</li>
+    <li>Clips created within 2 minutes of a "reward done" event.</li>
+    <li>Reports per 1,000 rewards, to watch for unsafe or misleading challenges.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Open questions</h2>
+  <ol>
+    <li>Should mods be able to add or edit rewards, or only mark them done?</li>
+    <li>Do we let creators put a reward on every level from day one, or cap v1 at 5 custom rewards to keep review volume down?</li>
+    <li>Is "Push to next stream" once per reward too generous, or too strict?</li>
+    <li>Should the completion rate be public, or visible only to the creator at first?</li>
+  </ol>
+</section>
+</div>
+
+<footer class="wrap">Concept mockups for discussion, styled with the Midnight Rail Hype Train design system. Channel names, chat lines and sub estimates are examples.</footer>
+
+<script>
+(function(){
+  const rewards=[
+    {l:1,t:"Default: Hype Train emote",d:"Granted automatically",auto:true},
+    {l:2,t:"Chat picks my drop spot",d:"Due this match"},
+    {l:3,t:"Pickaxe-only for one fight",d:"Due this match"},
+    {l:4,t:"Default: Hype Train emote",d:"Granted automatically",auto:true},
+    {l:5,t:"Drop ALL my guns",d:"Finish the match unarmed"},
+    {l:6,t:"Face cam on for an hour",d:"Due end of stream"},
+    {l:7,t:"Chat names my next 3 skins",d:"Due next stream"}
+  ];
+  const pct=[0,40,55,70,62,35,50,20];
+  const track=document.getElementById('track');
+  const sim=document.getElementById('sim'), out=document.getElementById('simOut');
+  const ic=(id)=>'<svg class="i" style="width:14px;height:14px"><use href="#i-'+id+'"/></svg>';
+  const all=(sel,fn)=>document.querySelectorAll(sel).forEach(fn);
+  function render(lvl){
+    const p=pct[lvl];
+    out.textContent='Lvl '+lvl+' · '+p+'%';
+    all('[data-lvl]',e=>e.textContent='Lvl '+lvl);
+    all('[data-pct]',e=>e.textContent=p+'%');
+    all('[data-fill]',e=>e.style.width=p+'%');
+    all('[data-remain]',e=>e.textContent='remaining to complete level '+lvl);
+    const nx=rewards.find(r=>r.l===lvl+1);
+    all('[data-nextk]',e=>e.textContent=nx?'Lvl '+nx.l:'');
+    all('[data-nextt]',e=>e.textContent=nx?nx.t:'Beyond the reward track');
+    all('[data-cta]',e=>e.textContent=nx?'Unlock: '+nx.t:'Keep the train going');
+    track.innerHTML='';
+    const rows=rewards.filter(r=>!r.auto && Math.abs(r.l-(lvl+1))<=2).slice(0,4);
+    rows.forEach(r=>{
+      let cls='rw locked', st=ic('lock')+'Locked';
+      if(r.l<lvl-1){cls='rw done';st=ic('check')+'Done';}
+      else if(r.l<=lvl){cls='rw owed';st='Owed';}
+      else if(r.l===lvl+1){cls='rw next';st='Next';}
+      const el=document.createElement('div');el.className=cls;
+      el.innerHTML='<div class="lvl">'+r.l+'</div><div class="t"><b></b><span></span></div><span class="st">'+st+'</span>';
+      el.querySelector('b').textContent=r.t;el.querySelector('.t span').textContent=r.d;
+      track.appendChild(el);
+    });
+  }
+  sim.addEventListener('input',()=>render(+sim.value));
+  render(+sim.value);
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hype Rewards Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: control column on the left, a live 390pt phone on the right; stacks on phones. Midnight Rail tokens (dark-only by design). */
+:root{
+  --bg:#0e0e10; --s1:#18181b; --s2:#26262c; --s3:#2e2e35; --btn2:#28282e; --line:#2f2f35;
+  --t1:#efeff1; --t2:#d3d3d9; --tm:#a3a3ad; --on:#fff;
+  --brand:#9147ff; --hype:#6d5dff; --r1:#e8b92e; --r2:#b8c4ce; --r3:#d9845a;
+  --rs:4px; --rm:6px; --rp:999px;
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--t1);font:400 14px/1.45 var(--font)}
+button{font-family:inherit;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--hype);outline-offset:2px}
+.app{max-width:1100px;margin:0 auto;padding-block:20px 32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;grid-template-columns:minmax(0,1fr) 392px;gap:28px;align-items:start}
+@media (max-width:860px){.app{grid-template-columns:minmax(0,1fr)}.side{order:2}}
+.top{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.top h1{font:800 22px/1.2 var(--font);margin:0;letter-spacing:-.01em}
+.top p{margin:2px 0 0;color:var(--tm);font-size:13px}
+.seg{display:inline-flex;background:var(--btn2);border-radius:var(--rp);padding:3px;gap:2px}
+.seg button{border:0;background:none;padding:7px 14px;border-radius:var(--rp);font-weight:600;font-size:13px;cursor:pointer;color:var(--t2)}
+.seg button[aria-pressed="true"]{background:var(--hype);color:#fff}
+.pill{border:0;border-radius:var(--rp);padding:9px 14px;font:600 13px/1 var(--font);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.pill.p{background:var(--brand);color:#fff}.pill.s{background:var(--btn2);color:var(--t1)}
+.pill.block{width:100%;padding:12px 14px;font-size:14px}
+.pill:disabled{opacity:.45;cursor:not-allowed}
+.card{background:var(--s1);border-radius:10px;padding:16px}
+.card h2{font:700 16px/1.3 var(--font);margin:0 0 4px}
+.card .sub{color:var(--tm);font-size:12.5px;margin:0 0 12px}
+.side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+.statgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.stat{background:var(--s2);border-radius:var(--rm);padding:8px 10px}
+.stat small{display:block;color:var(--tm);font-size:11px}
+.stat b{font:700 16px/1.2 var(--font);font-variant-numeric:tabular-nums}
+.edrow{display:grid;grid-template-columns:52px minmax(0,1fr) 120px 30px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.edrow:last-of-type{border-bottom:0}
+.edrow .lv{font-weight:700;color:var(--t2)}
+.in{width:100%;background:var(--s2);border:1px solid var(--line);border-radius:var(--rm);padding:7px 9px;color:var(--t1);font:400 13px/1.3 var(--font)}
+.in::placeholder{color:var(--tm)}
+.x{width:30px;height:30px;border-radius:50%;border:0;background:var(--btn2);cursor:pointer;font-size:15px;line-height:1}
+@media (max-width:520px){.edrow{grid-template-columns:44px minmax(0,1fr) 30px}.edrow select{grid-column:2/3}}
+.hint{color:var(--tm);font-size:12px;margin-top:10px}
+.log{max-height:150px;overflow:auto;font-size:12px;color:var(--t2);display:flex;flex-direction:column;gap:4px}
+
+/* phone */
+.phone{width:100%;max-width:392px;background:#000;border-radius:44px;padding:8px;box-shadow:0 0 0 1px var(--line),0 30px 60px -30px rgba(0,0,0,.9);position:sticky;top:16px;justify-self:center}
+.screen{position:relative;background:var(--bg);border-radius:36px;overflow:hidden;height:min(780px,calc(100vh - 60px));min-height:620px;display:flex;flex-direction:column;font-size:14px;line-height:1.35}
+@media (max-width:860px){.phone{position:static}}
+.sb{height:34px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 26px;font:600 13px/1 var(--font)}
+.video{flex:none;height:200px;position:relative;background:linear-gradient(160deg,#243a52 0%,#2c5a43 55%,#8a7234 100%);overflow:hidden}
+.video .live{position:absolute;left:10px;top:10px;background:#eb0400;color:#fff;font:700 11px/1 var(--font);padding:3px 6px;border-radius:var(--rs)}
+.video .who{position:absolute;left:10px;bottom:10px;font-weight:600;font-size:13px;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.video .view{position:absolute;right:10px;top:10px;font-size:12px;background:rgba(0,0,0,.5);padding:3px 6px;border-radius:var(--rs)}
+.actionrow{flex:none;display:flex;justify-content:flex-end;gap:8px;padding:8px 10px}
+.lb{flex:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:4px 10px 8px}
+.slot{display:flex;align-items:center;gap:7px;min-width:0}
+.medal{flex:none;width:28px;height:28px;border-radius:var(--rm);display:flex;align-items:center;justify-content:center;font:600 14px/1 var(--font);color:#141418}
+.m1{background:var(--r1)}.m2{background:var(--r2)}.m3{background:var(--r3)}.m0{background:var(--s3);color:var(--tm)}
+.slot div{min-width:0}
+.slot b{display:block;font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot div span{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--t2)}
+svg.i{width:16px;height:16px;flex:none}
+.hw{flex:none;padding:4px 10px 0}
+.hypebar{position:relative;height:62px;background:var(--s1);border-radius:var(--rm);overflow:hidden;display:flex;align-items:center;cursor:pointer;width:100%;border:0;text-align:left;padding:0}
+.hypebar.open{border-radius:var(--rm) var(--rm) 0 0}
+.hypebar.hasnext{border-radius:var(--rm) var(--rm) 0 0}
+.hypebar .fill{position:absolute;inset:0 auto 0 0;background:var(--hype);transition:width .5s ease}
+.hypebar .l{position:relative;padding-left:14px;flex:1;min-width:0}
+.hypebar .l small{display:block;font-size:13px;color:var(--t2)}
+.hypebar .l span{font-size:17px}
+.hypebar .r{position:relative;text-align:right;padding-right:6px}
+.hypebar .r b{display:block;font:600 13px/1.2 var(--font);font-variant-numeric:tabular-nums}
+.hypebar .r span{font-size:17px;font-variant-numeric:tabular-nums}
+.hypebar .ch{position:relative;padding:0 12px 0 6px;display:flex}
+.nextline{display:flex;align-items:center;gap:8px;background:var(--s2);border-radius:0 0 var(--rm) var(--rm);padding:9px 12px;font-size:13px;cursor:pointer;border:0;width:100%;text-align:left}
+.nextline .k{color:var(--r1);font-weight:600;white-space:nowrap}
+.nextline .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.panel{background:var(--s1);margin:0 10px;padding:8px;display:flex;flex-direction:column;gap:8px;border-radius:0 0 var(--rm) var(--rm)}
+.remaining{background:var(--s2);border-radius:var(--rs);padding:8px;text-align:center;font-size:13px;color:var(--t2)}
+.remaining b{color:var(--t1);font-weight:600;font-variant-numeric:tabular-nums}
+.sect{font:600 14px/1.3 var(--font);display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.sect small{font-weight:400;color:var(--tm);font-size:12px}
+.rw{display:flex;gap:9px;align-items:center;padding:7px 9px;border-radius:var(--rm);background:var(--s2);border:0;width:100%;text-align:left;cursor:pointer}
+.rw .lvl{flex:none;width:32px;height:32px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font:700 13px/1 var(--font);background:var(--s3);color:var(--t2)}
+.rw .t{flex:1;min-width:0}
+.rw .t b{display:block;font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rw .t span{font-size:12px;color:var(--tm)}
+.rw .st{flex:none;display:flex;align-items:center;gap:4px;font:600 12px/1 var(--font);color:var(--tm)}
+.rw.next{box-shadow:inset 0 0 0 1px var(--r1)}.rw.next .lvl{background:var(--r1);color:#1a1300}.rw.next .st{color:var(--r1)}
+.rw.owed .lvl{background:var(--hype);color:#fff}.rw.owed .st{color:#b9b1ff}
+.rw.done .lvl{color:var(--t1)}.rw.done .t b{text-decoration:line-through;color:var(--tm)}.rw.done .st{color:var(--t2)}
+.unlockc{background:var(--s2);border-radius:var(--rm);padding:12px;display:flex;flex-direction:column;gap:10px}
+.unlockc b{display:block;font:600 16px/1.25 var(--font)}
+.unlockc span{font-size:13px;color:var(--t2)}
+.chat{flex:1;min-height:60px;overflow:hidden;padding:6px 10px;display:flex;flex-direction:column;justify-content:flex-end;gap:5px;font-size:13.5px}
+.msg{margin:0;display:flex;gap:6px;align-items:flex-start;word-break:break-word}
+.msg i{flex:none;width:15px;height:15px;border-radius:3px;margin-top:2px}
+.msg .n{font-weight:600}
+.sys{background:color-mix(in srgb,var(--hype) 22%,var(--bg));border-left:3px solid var(--hype);border-radius:var(--rs);padding:6px 8px;font-size:13px}
+.sys.done{background:var(--s2);border-left-color:var(--t2)}
+.notice{flex:none;display:flex;gap:10px;align-items:center;padding:10px;border-top:1px solid var(--line);font-size:13px}
+.notice.hype{background:color-mix(in srgb,var(--hype) 22%,var(--bg));border-top-color:var(--hype)}
+.notice .tx{flex:1;min-width:0}
+.notice .tx b{font-weight:600}
+.notice .tx span{color:var(--t2)}
+.inputbar{flex:none;display:flex;align-items:center;gap:8px;padding:8px 10px 18px}
+.inputbar .pts{display:flex;align-items:center;gap:5px;font-weight:600;font-size:13px}
+.inputbar .pts i{width:20px;height:20px;border-radius:50%;background:var(--brand)}
+.inputbar .field{flex:1;background:var(--s2);border-radius:var(--rm);padding:10px 12px;color:var(--t2);display:flex;justify-content:space-between;align-items:center}
+.ib{border:0;background:none;cursor:pointer;padding:2px;display:flex;color:var(--t1)}
+.scroll{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column}
+/* overlays */
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:5}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-radius:18px 18px 0 0;padding:8px 16px 22px;display:flex;flex-direction:column;gap:12px;max-height:82%;overflow-y:auto;box-shadow:0 -1px 0 var(--line)}
+.grab{width:40px;height:5px;border-radius:5px;background:var(--t2);margin:0 auto;opacity:.8}
+.shead{display:flex;align-items:center;gap:10px}
+.shead h3{flex:1;margin:0;font:600 21px/1.2 var(--font)}
+.switcher{display:flex;gap:2px;background:var(--btn2);border-radius:var(--rp);padding:3px}
+.switcher button{width:34px;height:34px;border-radius:50%;border:0;background:none;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.switcher button[aria-pressed="true"]{background:var(--hype)}
+.xbtn{width:34px;height:34px;border-radius:50%;border:0;background:var(--btn2);cursor:pointer;font-size:18px;line-height:1}
+.rbanner{background:var(--s2);border-radius:var(--rm);padding:10px 12px;display:flex;flex-direction:column;gap:7px;box-shadow:inset 0 0 0 1px var(--r1);font-size:13.5px}
+.rbanner .top2{display:flex;gap:8px;align-items:center}
+.mini{height:7px;border-radius:7px;background:var(--s3);overflow:hidden;display:flex}
+.mini i{display:block;height:100%;transition:width .3s}
+.mini .a{background:var(--hype)}.mini .b{background:var(--r1);margin-left:2px}
+.rbanner small{font-size:12px;color:var(--t2)}
+.gifts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.gwrap{border-radius:8px;display:flex;border:0;padding:0;background:none;cursor:pointer;text-align:left}
+.gwrap[aria-pressed="true"]{box-shadow:0 0 0 2px var(--r1)}
+.gcard{flex:1;border:1.5px solid #7a3ce8;border-radius:var(--rm);overflow:hidden;display:flex;flex-direction:column}
+.gcard .art{position:relative;height:62px;background:#2d0f64;display:flex;align-items:center;justify-content:center}
+.gstack{position:relative;width:66px;height:44px}
+.gstack i{position:absolute;background:#fff;opacity:.9;border-radius:3px}
+.gstack i:nth-child(1){left:0;top:13px;width:24px;height:28px}
+.gstack i:nth-child(2){left:20px;top:4px;width:26px;height:37px}
+.gstack i:nth-child(3){left:42px;top:11px;width:24px;height:30px}
+.gbadge{position:absolute;left:6px;top:6px;padding:4px 7px;border-radius:var(--rs);font:700 12px/1 var(--font);white-space:nowrap}
+.gbadge.d{background:#e91916;color:#fff}.gbadge.p{background:#ffd37a;color:#000}
+.ginfo{flex:1;background:linear-gradient(180deg,#5c17c5,#402a40);padding:8px 10px;white-space:nowrap}
+.ginfo b{display:block;font:600 16px/1.25 var(--font)}
+.ginfo .pr{display:block;font:400 16px/1.2 var(--font)}
+.ginfo s{display:block;font:400 13px/1.35 var(--font);color:var(--t2)}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);background:var(--s1);border-radius:var(--rm);padding:3px;text-align:center}
+.tiers button{padding:7px 0;border-radius:var(--rs);border:0;background:none;color:var(--t2);cursor:pointer;font-size:13.5px}
+.tiers button[aria-pressed="true"]{background:var(--s3);color:var(--t1)}
+.rankline{display:flex;align-items:center;gap:9px;font-size:13.5px;background:var(--s1);border-radius:var(--rm);padding:9px 11px}
+.rankline .medal{width:24px;height:24px;font-size:12px;border-radius:var(--rs)}
+.bits{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.bitbtn{border:0;border-radius:var(--rm);background:var(--s1);padding:10px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;font-weight:700;font-size:13px}
+.bitbtn[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--r1)}
+.gem{width:20px;height:24px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.dl{display:flex;flex-direction:column;background:var(--s1);border-radius:var(--rm)}
+.dl div{display:flex;justify-content:space-between;gap:12px;padding:9px 11px;border-bottom:1px solid var(--line);font-size:13.5px}
+.dl div:last-child{border-bottom:0}
+.dl span{color:var(--tm)}.dl b{font-weight:600;text-align:right}
+.rhead{display:flex;gap:10px;align-items:flex-start}
+.rhead .lvl{flex:none;width:44px;height:44px;border-radius:var(--rm);display:flex;align-items:center;justify-content:center;font:700 17px/1 var(--font)}
+.rhead h3{margin:0;font:600 18px/1.25 var(--font)}
+.chip{display:inline-block;margin-top:5px;font:600 11.5px/1 var(--font);padding:5px 9px;border-radius:var(--rp)}
+.quote{font-size:13.5px;color:var(--t2);background:var(--s1);border-radius:var(--rm);padding:10px 11px}
+.trow{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13.5px}
+.tg{width:44px;height:26px;border-radius:var(--rp);background:var(--s3);position:relative;border:0;cursor:pointer;flex:none}
+.tg::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s}
+.tg[aria-checked="true"]{background:var(--brand)}.tg[aria-checked="true"]::after{left:21px}
+.link{background:none;border:0;color:var(--tm);text-decoration:underline;font-size:12.5px;cursor:pointer;align-self:center}
+.toast{position:absolute;left:10px;right:10px;top:150px;z-index:4;background:var(--s2);border-radius:var(--rm);padding:12px;display:flex;gap:10px;align-items:center;box-shadow:0 12px 30px rgba(0,0,0,.6);animation:pop .35s ease}
+.toast b{display:block;font:600 16px/1.25 var(--font)}
+.toast span{font-size:13px;color:var(--t2)}
+@keyframes pop{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.toast{animation:none}.hypebar .fill,.mini i{transition:none}}
+.sm-head{flex:none;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
+.sm-head b{font-size:17px}
+.sm{padding:12px;display:flex;flex-direction:column;gap:8px}
+.empty{color:var(--tm);text-align:center;padding:24px 8px;font-size:13.5px}
+.ended{background:var(--s1);border-radius:var(--rm);padding:12px;margin:4px 10px 0;display:flex;align-items:center;gap:10px;font-size:13.5px}
+.ended div{flex:1}
+</style>
+<style>body{margin:0}</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="gift" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7c-1-3-5-4-5-1.5S10 7 12 7zm0 0c1-3 5-4 5-1.5S14 7 12 7z"/></symbol>
+<symbol id="lock" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></symbol>
+<symbol id="check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+<symbol id="info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M12 11v6M12 7.2v.1" stroke="#0e0e10" stroke-width="2.4" stroke-linecap="round"/></symbol>
+<symbol id="down" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></symbol>
+<symbol id="up" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M6 15l6-6 6 6"/></symbol>
+<symbol id="bits" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 3l7 9-7 9-7-9zM5 12h14"/></symbol>
+<symbol id="trophy" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M12 14v4M8 20h8"/></symbol>
+<symbol id="emote" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.5 14.5c1.8 2 5.2 2 7 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="10" r="1.2" fill="currentColor"/><circle cx="15" cy="10" r="1.2" fill="currentColor"/></symbol>
+<symbol id="star" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></symbol>
+<symbol id="more" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="19" r="1.8" fill="currentColor"/></symbol>
+</defs></svg>
+
+<div class="app">
+  <div class="top">
+    <div><h1>Hype Train Creator Rewards</h1><p>Clickable prototype. Everything is simulated; nothing touches Twitch.</p></div>
+    <div class="seg" role="group" aria-label="Phone view"><button type="button" data-mode="viewer" aria-pressed="true">Viewer</button><button type="button" data-mode="streamer" aria-pressed="false">Streamer</button></div>
+  </div>
+
+  <div class="side">
+    <div class="card">
+      <h2>Simulate the stream</h2>
+      <p class="sub">Push the train from chat, or use the phone as a viewer: tap the Hype Train bar, a reward, or Gift.</p>
+      <div class="btnrow">
+        <button class="pill s" type="button" id="b-sub">Someone subs</button>
+        <button class="pill s" type="button" id="b-bits">Someone cheers 500 Bits</button>
+        <button class="pill p" type="button" id="b-bomb">Gift bomb (10 subs)</button>
+      </div>
+      <div class="btnrow" style="margin-top:8px">
+        <button class="pill s" type="button" id="b-end">End the train</button>
+        <button class="pill s" type="button" id="b-reset">Start over</button>
+      </div>
+      <div class="statgrid">
+        <div class="stat"><small>Level</small><b id="st-l">1</b></div>
+        <div class="stat"><small>Rewards owed</small><b id="st-o">0</b></div>
+        <div class="stat"><small>Your gifts</small><b id="st-y">0</b></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Creator dashboard: rewards</h2>
+      <p class="sub">What DropZoneDana will do at each level. Changes show on the phone right away. Leave a title empty to use the default emote reward.</p>
+      <div id="editor"></div>
+      <div class="btnrow" style="margin-top:10px"><button class="pill s" type="button" id="b-addlvl">Add a level</button></div>
+      <p class="hint" id="lockhint" hidden>Editing is locked while a train is running, so a reward can't change after chat starts paying for it.</p>
+    </div>
+
+    <div class="card">
+      <h2>Event log</h2>
+      <p class="sub">What the backend would emit as EventSub events.</p>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+
+  <div class="phone"><div class="screen" id="screen"></div></div>
+</div>
+
+<script>
+(function(){
+const DEFAULT_REWARDS=[
+  {l:2,title:"Chat picks my next drop spot",details:"Chat votes, I land there no matter what.",due:"This match"},
+  {l:3,title:"Pickaxe-only for one fight",details:"Next fight is pickaxe only.",due:"This match"},
+  {l:4,title:"",details:"",due:"This match"},
+  {l:5,title:"Drop ALL my guns",details:"Melee and items only until I'm eliminated or win.",due:"This match"},
+  {l:6,title:"Face cam on for an hour",details:"",due:"End of stream"},
+  {l:7,title:"Chat names my next 3 skins",details:"",due:"Next stream"}
+];
+const SUB=500, TRAIN_SECS=300;
+const need=l=>1500+300*(l-1);
+const BOTS=[["kai_builds","#b57bff"],["mossy","#5fb8ff"],["rengoku_44","#62d48a"],["pixel_lena","#ff8fd0"],["deathcult_99","#ffb347"],["Ratchetvibes","#7fe0d0"],["celestialbits","#c9a0ff"]];
+const LINES=["LETS GOOO","PUSH THE TRAIN","she's gonna fight with a pickaxe lmao","no way she drops the guns","W streamer","clip it","HYPE","we're so close","chat do your thing","GG"];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ic=(id,st)=>'<svg class="i"'+(st?' style="'+st+'"':'')+'><use href="#'+id+'"/></svg>';
+let rewards;
+try{rewards=JSON.parse(localStorage.getItem("hr-rewards")||"null")}catch(e){}
+if(!Array.isArray(rewards))rewards=JSON.parse(JSON.stringify(DEFAULT_REWARDS));
+const save=()=>{try{localStorage.setItem("hr-rewards",JSON.stringify(rewards))}catch(e){}};
+
+let S;
+function fresh(){
+  S={mode:S?S.mode:"viewer",active:true,level:1,pts:600,ends:Date.now()+TRAIN_SECS*1000,unlocked:{},contrib:{mossy:{g:5,b:0},deathcult_99:{g:4,b:0},Ratchetvibes:{g:3,b:300},celestialbits:{g:0,b:1200}},
+     chat:[],open:false,sheet:null,sel:5,bitsSel:1000,tab:"gift",detail:null,notify:{},toast:null,pinned:null,you:0,lbMetric:"gifts"};
+}
+fresh();
+const rewardAt=l=>{const r=rewards.find(r=>r.l===l);return r&&r.title.trim()?r:null};
+const maxLevel=()=>Math.max(...rewards.map(r=>r.l),5);
+const logEl=document.getElementById("log");
+function log(t){const d=document.createElement("div");d.textContent=new Date().toLocaleTimeString([], {minute:"2-digit",second:"2-digit"})+"  "+t;logEl.prepend(d);}
+function say(name,text,sys){S.chat.push({name,text,sys});if(S.chat.length>40)S.chat.shift();}
+
+function addPts(who,pts,kind,count){
+  if(!S.active)return;
+  const c=S.contrib[who]||(S.contrib[who]={g:0,b:0});
+  if(kind==="gift")c.g+=count;else c.b+=count;
+  if(who==="You")S.you+=kind==="gift"?count:0;
+  S.pts+=pts; S.ends=Date.now()+TRAIN_SECS*1000;
+  while(S.pts>=need(S.level)){
+    S.pts-=need(S.level); S.level++;
+    const r=rewardAt(S.level);
+    log("hype_train.progress level="+S.level);
+    if(r){
+      S.unlocked[S.level]={state:"owed",at:Date.now()};
+      const helpers=Object.keys(S.contrib).length*30+Math.floor(Math.random()*40);
+      S.toast={l:S.level,title:r.title,helpers};S.pinned={l:S.level,state:"owed"};
+      say(null,"Hype Train reached Lvl "+S.level+". DropZoneDana has to: "+r.title,true);
+      log("hype_train.reward_unlocked level="+S.level+' title="'+r.title+'"');
+      clearTimeout(S._tt);S._tt=setTimeout(()=>{S.toast=null;render();},6000);
+    }else{
+      say(null,"Hype Train reached Lvl "+S.level+". Everyone who helped gets a Hype Train emote.",true);
+    }
+  }
+}
+function markDone(l,by){
+  const u=S.unlocked[l];if(!u||u.state==="done")return;
+  u.state="done";u.by=by;u.doneAt=Date.now();
+  const r=rewardAt(l)||{title:"Lvl "+l+" reward"};
+  S.pinned={l,state:"done"};
+  say(null,"Reward done: "+r.title+". DropZoneDana paid off Lvl "+l+".",true,"done");
+  S.chat[S.chat.length-1].done=true;
+  log("hype_train.reward_completed level="+l+" by="+by);
+  if(S.notify[l])log("push sent: “"+r.title+"” is happening now");
+}
+function endTrain(){if(!S.active)return;S.active=false;S.open=false;say(null,"The Hype Train ended at Lvl "+S.level+".",true);log("hype_train.end level="+S.level);}
+
+/* ---------- views ---------- */
+function topThree(){
+  const m=S.lbMetric==="bits"?"b":"g";
+  return Object.entries(S.contrib).filter(([,v])=>v[m]>0).sort((a,b)=>b[1][m]-a[1][m]).slice(0,3);
+}
+function leaderboard(){
+  const t=topThree();let h='<div class="lb">';
+  for(let i=0;i<3;i++){const e=t[i];
+    h+=e?'<div class="slot"><span class="medal m'+(i+1)+'">'+(i+1)+'</span><div><b>'+esc(e[0])+'</b><span>'+ic(S.lbMetric==="bits"?"bits":"gift","width:12px;height:12px")+fmt(S.lbMetric==="bits"?e[1].b:e[1].g)+'</span></div></div>'
+       :'<div class="slot"><span class="medal m0">'+(i+1)+'</span><div><b style="color:var(--tm)">Open</b></div></div>';}
+  return h+'</div>';
+}
+const fmt=n=>n>=1000?(n/1000).toFixed(n%1000?1:0)+"K":String(n);
+function timeLeft(){const s=Math.max(0,Math.round((S.ends-Date.now())/1000));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
+function pct(){return Math.min(99,Math.floor(S.pts/need(S.level)*100));}
+function nextReward(){for(let l=S.level+1;l<=maxLevel();l++){const r=rewardAt(l);if(r)return r;}return null;}
+function rowState(l){const u=S.unlocked[l];if(u)return u.state;if(l===S.level+1)return "next";if(l<=S.level)return "missed";return "locked";}
+function rewardRow(r){
+  const st=rowState(r.l);let cls="rw",lab=ic("lock","width:14px;height:14px")+"Locked";
+  if(st==="next"){cls+=" next";lab="Next";}
+  else if(st==="owed"){cls+=" owed";lab="Owed";}
+  else if(st==="done"){cls+=" done";lab=ic("check","width:14px;height:14px")+"Done";}
+  else if(st==="missed"){lab="Earlier";}
+  return '<button type="button" class="'+cls+'" data-detail="'+r.l+'"><span class="lvl">'+r.l+'</span><span class="t"><b>'+esc(r.title)+'</b><span>'+esc(r.due)+'</span></span><span class="st">'+lab+'</span></button>';
+}
+function remainingTxt(){const rem=need(S.level)-S.pts;return '<b>'+ic("bits","width:14px;height:14px;vertical-align:-2px")+' '+fmt(rem)+' Bits</b> or <b>'+ic("gift","width:14px;height:14px;vertical-align:-2px")+' '+Math.ceil(rem/SUB)+' Subs</b><br>remaining to complete level '+S.level;}
+
+function viewer(){
+  const nx=nextReward();
+  let h='<div class="sb"><span>9:41</span><span>●●● ▮</span></div>';
+  h+='<div class="video"><span class="live">LIVE</span><span class="view">'+ic("emote","width:12px;height:12px;vertical-align:-2px")+' 4,210</span><span class="who">DropZoneDana · Fortnite</span></div>';
+  h+='<div class="scroll">';
+  h+='<div class="actionrow"><button class="pill s" type="button" data-open="gift">Subscribe</button><button class="pill p" type="button">Follow</button></div>';
+  h+=leaderboard();
+  if(S.active){
+    h+='<div class="hw"><button type="button" class="hypebar'+(S.open?" open":(nx?" hasnext":""))+'" id="hb" aria-expanded="'+S.open+'"><span class="fill" style="width:'+pct()+'%"></span><span class="l"><small>Hype Train</small><span>Lvl '+S.level+'</span></span><span class="r"><b id="tm">'+timeLeft()+'</b><span>'+pct()+'%</span></span><span class="ch">'+ic(S.open?"up":"down")+'</span></button>';
+    if(!S.open&&nx)h+='<button type="button" class="nextline" data-detail="'+nx.l+'">'+ic("gift","color:var(--r1)")+'<span class="k">Lvl '+nx.l+'</span><span class="t">'+esc(nx.title)+'</span></button>';
+    h+='</div>';
+    if(S.open){
+      const list=rewards.filter(r=>r.title.trim()).sort((a,b)=>a.l-b.l);
+      h+='<div class="panel"><div class="remaining">'+remainingTxt()+'</div><div class="sect">Streamer Rewards <small>DropZoneDana will do these</small></div>';
+      h+=list.length?list.map(rewardRow).join(""):'<div class="empty">No custom rewards yet</div>';
+      h+='<div class="unlockc"><div><b>'+(nx?"Unlock: "+esc(nx.title):"Keep the train going")+'</b><span>Sub, Gift, or Cheer'+(nx?" to reach Lvl "+nx.l:"")+'</span></div><button class="pill p block" type="button" data-open="gift">'+ic("gift")+'Gift 1 sub</button></div></div>';
+    }
+  }else{
+    const owed=Object.entries(S.unlocked).filter(([,u])=>u.state==="owed").length;
+    h+='<div class="ended">'+ic("trophy","color:var(--r1);width:22px;height:22px")+'<div><b>Hype Train ended at Lvl '+S.level+'</b><br><span style="color:var(--t2)">'+(owed?owed+" reward"+(owed>1?"s":"")+" still owed":"All rewards paid off")+'</span></div></div>';
+  }
+  h+='<div class="chat">'+S.chat.slice(-14).map(m=>m.sys?'<div class="sys'+(m.done?" done":"")+'">'+esc(m.text)+'</div>':'<p class="msg"><i style="background:'+m.color+'"></i><span><span class="n" style="color:'+m.color+'">'+esc(m.name)+':</span> '+esc(m.text)+'</span></p>').join("")+'</div>';
+  h+='</div>';
+  if(S.pinned){const r=rewardAt(S.pinned.l)||{title:"Lvl "+S.pinned.l+" reward"};
+    h+=S.pinned.state==="owed"
+      ?'<div class="notice hype">'+ic("gift","color:#c8c1ff")+'<div class="tx"><b>Reward owed: '+esc(r.title)+'</b><br><span>Unlocked at Lvl '+S.pinned.l+'</span></div><button class="pill s" type="button" data-detail="'+S.pinned.l+'">View</button></div>'
+      :'<div class="notice">'+ic("check")+'<div class="tx"><b>Reward done: '+esc(r.title)+'</b><br><span>DropZoneDana paid off Lvl '+S.pinned.l+'</span></div><button class="pill p" type="button" id="clip">Clip it</button></div>';}
+  h+='<div class="inputbar"><span class="pts"><i></i>320</span><span class="field">Send Chat<span style="display:flex;gap:10px"><button class="ib" type="button" data-open="bits" aria-label="Cheer with Bits">'+ic("bits")+'</button><button class="ib" type="button" aria-label="Emotes">'+ic("emote")+'</button></span></span>'+ic("more")+'</div>';
+  if(S.toast)h+='<div class="toast" role="status">'+ic("trophy","color:var(--r1);width:30px;height:30px")+'<div><b>Lvl '+S.toast.l+' reached!</b><span>DropZoneDana has to: '+esc(S.toast.title)+' · '+S.toast.helpers+' people helped</span></div></div>';
+  if(S.sheet)h+='<div class="scrim" data-close></div>'+sheet();
+  return h;
+}
+
+function giftSheet(){
+  const nx=nextReward(), rem=need(S.level)-S.pts;
+  const subsNeeded=Math.ceil(rem/SUB);
+  const opts=[{n:1,p:"$5.99"},{n:5,p:"$29.95",o:"$39.95",b:'<span class="gbadge d">SAVE $10</span>'},{n:10,p:"$59.90",o:"$79.90",b:'<span class="gbadge p">POPULAR</span>'}];
+  const sel=opts.find(o=>o.n===S.sel);
+  const add=Math.min(100-pct(),Math.round(S.sel*SUB/need(S.level)*100));
+  const st=S.lbMetric;
+  const top=topThree(); const myAfter=(S.contrib.You?S.contrib.You.g:0)+S.sel;
+  const rank=1+Object.entries(S.contrib).filter(([k,v])=>k!=="You"&&v.g>myAfter).length;
+  let h='<div class="shead"><div class="switcher"><button type="button" aria-pressed="false" aria-label="Subscribe">'+ic("star","width:15px;height:15px")+'</button><button type="button" aria-pressed="true" aria-label="Gift">'+ic("gift","width:15px;height:15px")+'</button></div><h3>Gift a Sub</h3><button class="xbtn" type="button" data-close aria-label="Close">×</button></div>';
+  if(S.active&&nx&&nx.l===S.level+1){
+    h+='<div class="rbanner"><div class="top2">'+ic("gift","color:var(--r1)")+'<span><b>'+subsNeeded+' sub'+(subsNeeded>1?"s":"")+' unlocks Lvl '+nx.l+':</b> '+esc(nx.title)+'</span></div><div class="mini"><i class="a" style="width:'+pct()+'%"></i><i class="b" style="width:'+add+'%"></i></div><small>'+(S.sel>=subsNeeded?S.sel+" Gift"+(S.sel>1?"s":"")+" finishes the level on its own":"Gold shows how far your gift moves the train")+'</small></div>';
+  }
+  h+='<div class="gifts">'+opts.map(o=>'<button type="button" class="gwrap" data-sel="'+o.n+'" aria-pressed="'+(o.n===S.sel)+'"><span class="gcard"><span class="art"><span class="gstack"><i></i><i></i><i></i></span>'+(o.b||"")+'</span><span class="ginfo"><b>'+o.n+' Gift'+(o.n>1?"s":"")+'</b><span class="pr">'+o.p+'</span>'+(o.o?'<s>'+o.o+'</s>':"")+'</span></span></button>').join("")+'</div>';
+  h+='<div class="tiers"><button type="button" aria-pressed="true">Tier 1</button><button type="button" aria-pressed="false">Tier 2</button><button type="button" aria-pressed="false">Tier 3</button></div>';
+  if(S.active)h+='<div class="rankline"><span class="medal m'+Math.min(rank,3)+'"'+(rank>3?' style="background:var(--s3);color:var(--t2)"':"")+'>'+rank+'</span><span>Gifting '+S.sel+' puts you <b>#'+rank+' on the leaderboard</b></span></div>';
+  h+='<div class="rankline">'+ic("emote","color:var(--t2)")+'<span>Plus a random Hype Train emote for you</span></div>';
+  h+='<button class="pill p block" type="button" id="dogift">'+ic("gift")+'Gift '+S.sel+' sub'+(S.sel>1?"s":"")+' · '+sel.p+'</button>';
+  h+='<span style="text-align:center;font-size:12.5px;color:var(--tm)">Prototype: no payment happens</span>';
+  return h;
+}
+function bitsSheet(){
+  const nx=nextReward();const opts=[[100,"#9c3ee8"],[1000,"#1db2a5"],[5000,"#0099fe"],[10000,"#f43021"]];
+  const add=Math.min(100-pct(),Math.round(S.bitsSel/need(S.level)*100));
+  let h='<div class="shead"><h3>Cheer</h3><button class="xbtn" type="button" data-close aria-label="Close">×</button></div>';
+  if(S.active&&nx&&nx.l===S.level+1)h+='<div class="rbanner"><div class="top2">'+ic("gift","color:var(--r1)")+'<span><b>Next: Lvl '+nx.l+'</b> '+esc(nx.title)+'</span></div><div class="mini"><i class="a" style="width:'+pct()+'%"></i><i class="b" style="width:'+add+'%"></i></div><small>'+(S.bitsSel>=need(S.level)-S.pts?"This cheer unlocks it":"Gold shows how far your cheer moves the train")+'</small></div>';
+  h+='<div class="bits">'+opts.map(([n,c])=>'<button type="button" class="bitbtn" data-bits="'+n+'" aria-pressed="'+(n===S.bitsSel)+'" style="color:'+c+'"><span class="gem" style="background:'+c+'"></span>'+n+'</button>').join("")+'</div>';
+  h+='<button class="pill p block" type="button" id="docheer">'+ic("bits")+'Cheer '+S.bitsSel.toLocaleString()+' Bits</button>';
+  return h;
+}
+function detailSheet(){
+  const l=S.detail, r=rewardAt(l); if(!r)return '<div class="empty">This reward was removed.</div>';
+  const st=rowState(l), rem=need(S.level)-S.pts;
+  const chip={next:["Next · "+(100-pct())+"% to go","var(--r1)"],owed:["Owed","#b9b1ff"],done:["Done","var(--t2)"],locked:["Locked","var(--tm)"],missed:["Earlier level","var(--tm)"]}[st];
+  const tileBg={next:"var(--r1);color:#1a1300",owed:"var(--hype);color:#fff",done:"var(--s3);color:var(--t1)"}[st]||"var(--s3);color:var(--t2)";
+  const done=Object.values(S.unlocked).filter(u=>u.state==="done").length;
+  let h='<div class="rhead"><span class="lvl" style="background:'+tileBg+'">'+l+'</span><div style="flex:1;min-width:0"><h3>'+esc(r.title)+'</h3><span class="chip" style="color:'+chip[1]+';background:color-mix(in srgb,'+chip[1]+' 20%,transparent)">'+chip[0]+'</span></div><button class="xbtn" type="button" data-close aria-label="Close">×</button></div>';
+  if(r.details.trim())h+='<div class="quote">“'+esc(r.details)+'” <span style="color:var(--tm)">— DropZoneDana</span></div>';
+  h+='<div class="dl">';
+  h+=st==="next"?'<div><span>Unlocks at</span><b>Lvl '+l+' · '+Math.ceil(rem/SUB)+' subs or '+fmt(rem)+' Bits</b></div>':'<div><span>Unlocks at</span><b>Lvl '+l+'</b></div>';
+  h+='<div><span>Due</span><b>'+esc(r.due)+'</b></div>';
+  if(S.unlocked[l]&&S.unlocked[l].by)h+='<div><span>Marked done by</span><b>'+esc(S.unlocked[l].by)+'</b></div>';
+  h+='<div><span>Track record</span><b>'+(18+done)+' of '+(19+done)+' rewards done</b></div></div>';
+  if(st!=="done")h+='<div class="trow"><span>Notify me when it happens</span><button type="button" class="tg" role="switch" id="notify" aria-checked="'+!!S.notify[l]+'" aria-label="Notify me when it happens"></button></div>';
+  if(st==="next"||st==="locked")h+='<button class="pill p block" type="button" data-open="gift"'+(S.active?"":" disabled")+'>'+ic("gift")+'Help unlock it</button>';
+  h+='<button class="link" type="button" id="report">Report this reward</button>';
+  return h;
+}
+function sheet(){
+  const body=S.sheet==="gift"?giftSheet():S.sheet==="bits"?bitsSheet():detailSheet();
+  return '<div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>'+body+'</div>';
+}
+
+function streamer(){
+  let h='<div class="sb"><span>9:41</span><span>●●● ▮</span></div>';
+  h+='<div class="sm-head"><b>Stream Manager</b><span style="color:var(--tm);font-size:12.5px">'+(S.active?"Hype Train Lvl "+S.level+" · "+timeLeft():"Live")+'</span></div>';
+  const items=Object.entries(S.unlocked).map(([l,u])=>({l:+l,u,r:rewardAt(+l)||{title:"Lvl "+l+" reward",due:""}})).sort((a,b)=>a.l-b.l);
+  const owed=items.filter(i=>i.u.state==="owed"), done=items.filter(i=>i.u.state==="done");
+  h+='<div class="scroll"><div class="sm"><div class="sect">Rewards queue <small>'+owed.length+' owed</small></div>';
+  if(!items.length)h+='<div class="empty">Nothing owed yet. When the train reaches a level with a reward, it lands here.<br><br>Try "Gift bomb" on the left.</div>';
+  owed.forEach((i,ix)=>{
+    h+=ix===0?'<div class="unlockc"><div><b>'+esc(i.r.title)+'</b><span>Lvl '+i.l+' · Due '+esc(i.r.due.toLowerCase())+'</span></div><div style="display:flex;gap:8px"><button class="pill p" type="button" style="flex:1" data-done="'+i.l+'">'+ic("check")+'Mark done</button><button class="pill s" type="button" data-skip="'+i.l+'">Skip</button></div></div>'
+      :'<div class="rw owed"><span class="lvl">'+i.l+'</span><span class="t"><b>'+esc(i.r.title)+'</b><span>Due '+esc(i.r.due.toLowerCase())+'</span></span><button class="pill p" type="button" data-done="'+i.l+'" style="padding:7px 11px">Done</button></div>';
+  });
+  done.forEach(i=>{h+='<div class="rw done"><span class="lvl">'+i.l+'</span><span class="t"><b>'+esc(i.r.title)+'</b><span>'+(i.u.skipped?"Skipped":"Done by "+esc(i.u.by))+'</span></span><span class="st">'+ic("check","width:14px;height:14px")+(i.u.skipped?"Skipped":"Done")+'</span></div>';});
+  h+='<div class="rankline" style="margin-top:4px">'+ic("trophy","color:var(--r1)")+'<span>'+(18+done.length)+' of '+(19+done.length)+' rewards done. Viewers see this.</span></div>';
+  h+='<div class="sect" style="margin-top:8px">Top supporters</div>';
+  h+=topThree().map((e,i)=>'<div class="rankline"><span class="medal m'+(i+1)+'">'+(i+1)+'</span><span style="flex:1"><b>'+esc(e[0])+'</b></span><span style="color:var(--t2)">'+e[1].g+' gifts · '+fmt(e[1].b)+' Bits</span></div>').join("");
+  h+='</div></div>';
+  return h;
+}
+
+/* ---------- editor ---------- */
+const edEl=document.getElementById("editor");
+function renderEditor(){
+  const locked=S.active;
+  document.getElementById("lockhint").hidden=!locked;
+  edEl.innerHTML=rewards.slice().sort((a,b)=>a.l-b.l).map(r=>'<div class="edrow"><span class="lv">Lvl '+r.l+'</span><input class="in" id="t-'+r.l+'" data-ed="'+r.l+'" maxlength="60" placeholder="Default emote reward" value="'+esc(r.title)+'"'+(locked?" disabled":"")+'><select class="in" id="d-'+r.l+'" data-due="'+r.l+'"'+(locked?" disabled":"")+'>'+["This match","End of stream","Next stream"].map(o=>'<option'+(o===r.due?" selected":"")+'>'+o+'</option>').join("")+'</select><button class="x" type="button" data-del="'+r.l+'" aria-label="Remove level '+r.l+'"'+(locked?" disabled":"")+'>×</button></div>').join("");
+  document.getElementById("b-addlvl").disabled=locked;
+}
+edEl.addEventListener("input",e=>{const l=+e.target.dataset.ed;if(!l)return;const r=rewards.find(r=>r.l===l);r.title=e.target.value;save();render(false);});
+edEl.addEventListener("change",e=>{const l=+e.target.dataset.due;if(!l)return;rewards.find(r=>r.l===l).due=e.target.value;save();render(false);});
+edEl.addEventListener("click",e=>{const b=e.target.closest("[data-del]");if(!b)return;rewards=rewards.filter(r=>r.l!==+b.dataset.del);save();renderEditor();render(false);});
+document.getElementById("b-addlvl").onclick=()=>{const l=Math.max(1,...rewards.map(r=>r.l))+1;rewards.push({l,title:"",details:"",due:"This match"});save();renderEditor();render(false);setTimeout(()=>{const el=document.getElementById("t-"+l);el&&el.focus();},0);};
+
+/* ---------- render + events ---------- */
+const scr=document.getElementById("screen");
+let lastActive=null;
+function render(withEditor){
+  const sc=scr.querySelector(".scroll");const keep=sc?sc.scrollTop:0;
+  const sh=scr.querySelector(".sheet");const keepSh=sh?sh.scrollTop:0;
+  scr.innerHTML=S.mode==="viewer"?viewer():streamer();
+  const sc2=scr.querySelector(".scroll");if(sc2)sc2.scrollTop=keep;
+  const sh2=scr.querySelector(".sheet");if(sh2)sh2.scrollTop=keepSh;
+  document.getElementById("st-l").textContent=S.level;
+  document.getElementById("st-o").textContent=Object.values(S.unlocked).filter(u=>u.state==="owed").length;
+  document.getElementById("st-y").textContent=S.you;
+  if(withEditor!==false||lastActive!==S.active){renderEditor();lastActive=S.active;}
+}
+scr.addEventListener("click",e=>{
+  const t=e.target.closest("button,[data-close]");if(!t)return;
+  if(t.id==="hb"){S.open=!S.open;}
+  else if(t.hasAttribute("data-close")){S.sheet=null;}
+  else if(t.dataset.open){S.sheet=t.dataset.open;}
+  else if(t.dataset.detail){S.detail=+t.dataset.detail;S.sheet="detail";}
+  else if(t.dataset.sel){S.sel=+t.dataset.sel;}
+  else if(t.dataset.bits){S.bitsSel=+t.dataset.bits;}
+  else if(t.id==="dogift"){S.lbMetric="gifts";addPts("You",S.sel*SUB,"gift",S.sel);say(null,"You gifted "+S.sel+" sub"+(S.sel>1?"s":"")+" to the community!",true);log("channel.subscription.gift total="+S.sel);S.sheet=null;}
+  else if(t.id==="docheer"){S.lbMetric="bits";addPts("You",S.bitsSel,"bits",S.bitsSel);say("You","Cheer"+S.bitsSel+" LETS GO");S.chat[S.chat.length-1].color="#9147ff";log("channel.cheer bits="+S.bitsSel);S.sheet=null;}
+  else if(t.id==="notify"){S.notify[S.detail]=!S.notify[S.detail];}
+  else if(t.id==="report"){S.sheet=null;say(null,"Thanks. Your report was sent to Twitch Safety (simulated).",true);}
+  else if(t.id==="clip"){say(null,"Clip created: “DropZoneDana pays off the Hype Train” (simulated)",true);}
+  else if(t.dataset.done){markDone(+t.dataset.done,"DropZoneDana");}
+  else if(t.dataset.skip){const u=S.unlocked[+t.dataset.skip];u.state="done";u.skipped=true;u.by="DropZoneDana";S.pinned=null;say(null,"Skipped: "+(rewardAt(+t.dataset.skip)||{title:""}).title+" (game ended)",true);log("hype_train.reward_skipped level="+t.dataset.skip);}
+  else return;
+  render(false);
+});
+document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{S.mode=b.dataset.mode;S.sheet=null;document.querySelectorAll("[data-mode]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));render(false);});
+const rb=()=>BOTS[Math.floor(Math.random()*BOTS.length)];
+document.getElementById("b-sub").onclick=()=>{if(!S.active)return;const b=rb();S.lbMetric="gifts";addPts(b[0],SUB,"gift",1);say(null,b[0]+" subscribed!",true);log("channel.subscribe user="+b[0]);render(false);};
+document.getElementById("b-bits").onclick=()=>{if(!S.active)return;const b=rb();S.lbMetric="bits";addPts(b[0],500,"bits",500);say(b[0],"Cheer500 PUSH IT");S.chat[S.chat.length-1].color=b[1];log("channel.cheer bits=500 user="+b[0]);render(false);};
+document.getElementById("b-bomb").onclick=()=>{if(!S.active)return;const b=rb();S.lbMetric="gifts";addPts(b[0],10*SUB,"gift",10);say(null,b[0]+" gifted 10 subs to the community!",true);log("channel.subscription.gift total=10 user="+b[0]);render(false);};
+document.getElementById("b-end").onclick=()=>{endTrain();render();};
+document.getElementById("b-reset").onclick=()=>{fresh();logEl.innerHTML="";seed();render();};
+
+function seed(){for(let i=0;i<5;i++){const b=rb();S.chat.push({name:b[0],color:b[1],text:LINES[Math.floor(Math.random()*LINES.length)]});}log("hype_train.begin level=1");}
+seed();render();
+
+setInterval(()=>{
+  if(S.active&&Date.now()>=S.ends){endTrain();render();return;}
+  if(Math.random()<.45){const b=rb();S.chat.push({name:b[0],color:b[1],text:LINES[Math.floor(Math.random()*LINES.length)]});if(S.chat.length>40)S.chat.shift();render(false);}
+  else{const tm=document.getElementById("tm");if(tm)tm.textContent=timeLeft();}
+},1500);
+})();
+</script>
+
+</body>
+</html>
