@@ -257,7 +257,7 @@ svg.i{width:16px;height:16px;flex:none}
       <h2>Creator dashboard: rewards and difficulty</h2>
       <p class="sub">What DropZoneDana will do at each level. Changes show on the phone right away. Leave a title empty to use the default emote reward. Pick Custom to set your own sub counts, or type an exact number in any level's "Subs" box. 1 sub = 500 Bits.</p>
       <div class="diff"><label for="difficulty">Difficulty</label><select class="in" id="difficulty" style="width:auto"><option value="easy">Easy</option><option value="normal">Normal</option><option value="hard">Hard</option><option value="custom">Custom</option></select><span class="hint" style="margin:0" id="diffhint"></span></div>
-      <div class="diff" id="customrow" hidden><label for="c-base">Lvl 2 takes</label><input class="in num" type="number" min="1" max="200" id="c-base" style="width:72px"><span class="hint" style="margin:0">subs, and each level after adds</span><input class="in num" type="number" min="0" max="100" id="c-step" style="width:72px"><span class="hint" style="margin:0">more</span></div>
+      <div class="diff" id="customrow" hidden><label for="c-base">Lvl 2 takes</label><input class="in num" type="number" min="1" max="200" id="c-base" style="width:72px"><span class="hint" style="margin:0">subs, then each level</span><select class="in" id="c-mode" style="width:auto"><option value="add">adds</option><option value="mult">multiplies by</option></select><input class="in num" type="number" min="0" max="100" id="c-step" style="width:72px"><span class="hint" style="margin:0" id="c-unit">more</span></div>
       <div class="edhead"><span>Level</span><span>Reward</span><span>Subs</span><span class="dh">Due</span><span></span></div>
       <div id="editor"></div>
       <div class="btnrow" style="margin-top:10px"><button class="pill s" type="button" id="b-addlvl">Add a level</button></div>
@@ -285,9 +285,9 @@ const DEFAULT_REWARDS=[
   {l:7,title:"Chat names my next 3 skins",details:"",due:"Next stream"}
 ];
 const SUB=500, TRAIN_SECS=300;
-let difficulty="normal",custom={base:4,step:2};
-try{difficulty=localStorage.getItem("hr-diff")||"normal";custom=JSON.parse(localStorage.getItem("hr-custom")||"null")||custom}catch(e){}
-const PRESET={easy:l=>2+Math.floor((l-2)/2),normal:l=>3+(l-2),hard:l=>5+2*(l-2),custom:l=>Math.max(1,custom.base+custom.step*(l-2))};
+let difficulty="normal",custom={base:4,step:2,mode:"add",mult:2};
+try{difficulty=localStorage.getItem("hr-diff")||"normal";custom=Object.assign(custom,JSON.parse(localStorage.getItem("hr-custom")||"null")||{})}catch(e){}
+const PRESET={easy:l=>2+Math.floor((l-2)/2),normal:l=>3+(l-2),hard:l=>5+2*(l-2),custom:l=>Math.min(9999,Math.max(1,custom.mode==="mult"?Math.round(custom.base*Math.pow(custom.mult,l-2)):custom.base+custom.step*(l-2)))};
 const presetSubs=l=>PRESET[difficulty](Math.max(2,l));
 const subsTo=l=>{const r=rewards.find(r=>r.l===l);return r&&r.subs>0?r.subs:presetSubs(l)};
 const need=l=>subsTo(l+1)*SUB;
@@ -490,12 +490,17 @@ function renderEditor(){
   const ds=document.getElementById("difficulty");ds.value=difficulty;ds.disabled=locked;
   document.getElementById("customrow").hidden=difficulty!=="custom";
   const cb=document.getElementById("c-base"),cs=document.getElementById("c-step");
-  if(document.activeElement!==cb)cb.value=custom.base;if(document.activeElement!==cs)cs.value=custom.step;cb.disabled=cs.disabled=locked;
+  const cm=document.getElementById("c-mode");cm.value=custom.mode;const mult=custom.mode==="mult";
+  cs.step=mult?"0.1":"1";cs.min=mult?"1.1":"0";cs.max=mult?"5":"100";
+  document.getElementById("c-unit").textContent=mult?"\u00D7":"more";
+  if(document.activeElement!==cb)cb.value=custom.base;if(document.activeElement!==cs)cs.value=mult?custom.mult:custom.step;cb.disabled=cs.disabled=cm.disabled=locked;
   document.getElementById("diffhint").textContent="Lvl 2 takes "+presetSubs(2)+" subs, Lvl 5 takes "+presetSubs(5)+", Lvl 10 takes "+presetSubs(10)+".";
 }
 edEl.addEventListener("input",e=>{const l=+e.target.dataset.ed;if(!l)return;const r=rewards.find(r=>r.l===l);r.title=e.target.value;save();render(false);});
 edEl.addEventListener("input",e=>{const l=+e.target.dataset.subs;if(!l)return;const v=parseInt(e.target.value,10);rewards.find(r=>r.l===l).subs=v>0?Math.min(v,200):null;save();render(false);});
-["c-base","c-step"].forEach(id=>document.getElementById(id).addEventListener("input",e=>{const v=parseInt(e.target.value,10);if(isNaN(v))return;custom[id==="c-base"?"base":"step"]=Math.max(id==="c-base"?1:0,Math.min(v,200));save();renderEditor();render(false);}));
+document.getElementById("c-base").addEventListener("input",e=>{const v=parseInt(e.target.value,10);if(isNaN(v))return;custom.base=Math.max(1,Math.min(v,200));save();renderEditor();render(false);});
+document.getElementById("c-step").addEventListener("input",e=>{const v=parseFloat(e.target.value);if(isNaN(v))return;if(custom.mode==="mult")custom.mult=Math.max(1.1,Math.min(v,5));else custom.step=Math.max(0,Math.min(Math.round(v),100));save();renderEditor();render(false);});
+document.getElementById("c-mode").addEventListener("change",e=>{custom.mode=e.target.value;save();log("hype_train.settings growth="+(custom.mode==="mult"?custom.mult+"x":"+"+custom.step));renderEditor();render(false);});
 document.getElementById("difficulty").addEventListener("change",e=>{difficulty=e.target.value;save();log("hype_train.settings difficulty="+difficulty);renderEditor();render(false);});
 edEl.addEventListener("change",e=>{const l=+e.target.dataset.due;if(!l)return;rewards.find(r=>r.l===l).due=e.target.value;save();render(false);});
 edEl.addEventListener("click",e=>{const b=e.target.closest("[data-del]");if(!b)return;rewards=rewards.filter(r=>r.l!==+b.dataset.del);save();renderEditor();render(false);});
