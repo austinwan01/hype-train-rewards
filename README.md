@@ -22,7 +22,7 @@ It's plain HTML, CSS and JavaScript with no build step.
 
 1. **Viewer:** tap the Hype Train bar, tap a reward for details, then Gift or tap the Bits icon in chat to push the train.
 2. **Streamer:** switch the phone to Streamer and tap Mark done. The viewer's pinned notice turns into "Reward done".
-3. **Add a reward mid-train:** while a train is running, type `!reward your idea` in the viewer's chat (simulated chatters do it too). Matching ideas are grouped, ignoring case and punctuation, and each chatter counts once. Switch to Streamer and the most-asked ideas show up in the "Chat wants more?" card. Tap it, pick a higher level, and tap Add. Viewers get a "New reward" toast, a New tag on that level, and a chat message.
+3. **Add a reward mid-train:** while a train is running, type `!request your idea` (or `!rewardrequest`) in the viewer's chat (simulated chatters do it too). Matching ideas are grouped, ignoring case and punctuation, and each chatter counts once. Switch to Streamer and the most-asked ideas show up in the "Chat wants more?" card. Tap it, pick a higher level, and tap Add. Viewers get a "New reward" toast, a New tag on that level, and a chat message.
 4. **Creator:** end the train, then edit rewards, pick a difficulty (Easy, Medium, Hard, Super Hard, Insane or Custom with your own sub counts that grow by a fixed amount or multiply, like 2x per level), or set an exact number of subs for any level. The phone updates live. Settings are saved in your browser's localStorage.
 
 ## Design
