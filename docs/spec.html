@@ -288,6 +288,33 @@ svg.i{width:16px;height:16px;flex:none}
 </header>
 
 <div class="wrap">
+<section id="vs-today">
+  <h2>How this differs from today's Hype Train</h2>
+  <p>Today's Hype Train is a fixed system run by Twitch. Creator Rewards keep its engine (points, timer, levels, cooldown) and add a layer the streamer writes themselves.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Rule</th><th>Hype Train today</th><th>With Creator Rewards</th></tr></thead>
+    <tbody>
+      <tr><td>Who can use it</td><td>Affiliates and Partners</td><td>Same</td></tr>
+      <tr><td>How it starts</td><td>Enough subs, gift subs and Bits from at least two people within about 5 minutes. Streamers can't start one by hand.</td><td>Same. Rewards never trigger a train on their own.</td></tr>
+      <tr><td>Points</td><td>Tier 1 or Prime sub 500, Tier 2 1,000, Tier 3 2,500, 1 point per Bit</td><td>Same. Shown to viewers as "X subs or Y Bits to go".</td></tr>
+      <tr><td>Difficulty</td><td>Presets: Easy, Medium, Hard, Super Hard, Insane. Exact thresholds aren't published.</td><td>Same presets, plus <b>Custom</b>: the streamer sets subs per level, either a fixed step or a multiplier (e.g. 2x), and can override any single level.</td></tr>
+      <tr><td>Timer and cooldown</td><td>About 5 minutes per level, then a cooldown of at least 1 hour</td><td>Same</td></tr>
+      <tr><td>Viewer rewards</td><td>Platform emotes by level, plus a Conductor badge for the top gifter and top cheerer</td><td>Same, <b>plus</b> a creator-written challenge at any level, such as "drop all my guns"</td></tr>
+      <tr><td>What the streamer owes</td><td>Nothing. Rewards are granted automatically.</td><td>A promise to do the challenge, tracked in a Rewards queue with Done, Skip and an overdue state. Viewers see a public completion rate.</td></tr>
+      <tr><td>What viewers see</td><td>Level, timer, percent and the emotes on offer</td><td>Also the next reward under the bar, the reward list, reward details, and which gift finishes the level</td></tr>
+      <tr><td>Closest existing feature</td><td>Treasure Train lets streamers pick prize bundles for a randomized reward pool</td><td>Creator Rewards are fixed per level, not random, and are things the streamer does on stream rather than items</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Twitch rules this has to respect</h3>
+  <ul>
+    <li><b>Community Guidelines still apply.</b> A reward can't ask for anything Twitch already bans on stream, such as self-harm, dangerous stunts, harassment or sexual content. That's why rewards go through automated review and can be reported.</li>
+    <li><b>No real-world prizes through rewards.</b> Giveaways and payouts fall under separate promotion rules, so v1 keeps rewards to on-stream actions only.</li>
+    <li><b>Nothing paid is changed.</b> Prices, points and payouts stay exactly as they are. Rewards only change what the streamer promises to do.</li>
+    <li><b>Honest promises.</b> Skipped and overdue rewards are shown to viewers, so a streamer can't use rewards as bait and never deliver.</li>
+  </ul>
+  <p class="muted" style="font-size:13px">Sources: Twitch's help center would not load from here, so these rules come from third-party guides that read the official docs: <a href="https://www.streamscheme.com/twitch-hype-train-complete-guide/" style="color:inherit">StreamScheme</a>, <a href="https://stream-rise.com/blog/hype-train-guide" style="color:inherit">Stream Rise</a>, <a href="https://forum.lumiastream.com/t/how-to-set-up-a-hype-train-alert/309" style="color:inherit">Lumia Stream</a> and <a href="https://docs.streamer.bot/api/triggers/twitch/hype-train/level-up" style="color:inherit">Streamer.bot</a>. Check details against <a href="https://help.twitch.tv/s/article/hype-train-guide" style="color:inherit">Twitch's Hype Train Guide</a> before relying on them.</p>
+</section>
+
 <section>
   <h2>Why this matters</h2>
   <p>Hype Train rewards today are emotes and badges set by the platform, and they are the same on every channel. The levels feel like a progress bar more than a moment. Letting creators add their own payoffs turns each level into something chat can see happen on stream, which is the part viewers actually rally around.</p>
