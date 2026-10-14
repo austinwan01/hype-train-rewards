@@ -256,7 +256,7 @@ svg.i{width:16px;height:16px;flex:none}
     <div class="card">
       <h2>Creator dashboard: rewards and difficulty</h2>
       <p class="sub">What DropZoneDana will do at each level. Changes show on the phone right away. Leave a title empty to use the default emote reward. Pick Custom to set your own sub counts, or type an exact number in any level's "Subs" box. 1 sub = 500 Bits.</p>
-      <div class="diff"><label for="difficulty">Difficulty</label><select class="in" id="difficulty" style="width:auto"><option value="easy">Easy</option><option value="normal">Normal</option><option value="hard">Hard</option><option value="custom">Custom</option></select><span class="hint" style="margin:0" id="diffhint"></span></div>
+      <div class="diff"><label for="difficulty">Difficulty</label><select class="in" id="difficulty" style="width:auto"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option><option value="superhard">Super Hard</option><option value="insane">Insane</option><option value="custom">Custom</option></select><span class="hint" style="margin:0" id="diffhint"></span></div>
       <div class="diff" id="customrow" hidden><label for="c-base">Lvl 2 takes</label><input class="in num" type="number" min="1" max="200" id="c-base" style="width:72px"><span class="hint" style="margin:0">subs, then each level</span><select class="in" id="c-mode" style="width:auto"><option value="add">adds</option><option value="mult">multiplies by</option></select><input class="in num" type="number" min="0" max="100" id="c-step" style="width:72px"><span class="hint" style="margin:0" id="c-unit">more</span></div>
       <div class="edhead"><span>Level</span><span>Reward</span><span>Subs</span><span class="dh">Due</span><span></span></div>
       <div id="editor"></div>
@@ -288,9 +288,10 @@ const DEFAULT_REWARDS=[
 const TIERS={1:{price:5.99,pts:500},2:{price:9.99,pts:1000},3:{price:24.99,pts:2500}};
 const money=n=>"$"+n.toFixed(2);
 const SUB=500, TRAIN_SECS=300;
-let difficulty="normal",custom={base:4,step:2,mode:"add",mult:2};
-try{difficulty=localStorage.getItem("hr-diff")||"normal";custom=Object.assign(custom,JSON.parse(localStorage.getItem("hr-custom")||"null")||{})}catch(e){}
-const PRESET={easy:l=>2+Math.floor((l-2)/2),normal:l=>3+(l-2),hard:l=>5+2*(l-2),custom:l=>Math.min(9999,Math.max(1,custom.mode==="mult"?Math.round(custom.base*Math.pow(custom.mult,l-2)):custom.base+custom.step*(l-2)))};
+let difficulty="medium",custom={base:4,step:2,mode:"add",mult:2};
+try{difficulty=localStorage.getItem("hr-diff")||"medium";if(difficulty==="normal")difficulty="medium";custom=Object.assign(custom,JSON.parse(localStorage.getItem("hr-custom")||"null")||{})}catch(e){}
+// Twitch offers Easy, Medium, Hard, Super Hard and Insane but does not publish the thresholds; these curves are estimates.
+const PRESET={easy:l=>2+Math.floor((l-2)/2),medium:l=>3+(l-2),hard:l=>5+2*(l-2),superhard:l=>8+3*(l-2),insane:l=>12+5*(l-2),custom:l=>Math.min(9999,Math.max(1,custom.mode==="mult"?Math.round(custom.base*Math.pow(custom.mult,l-2)):custom.base+custom.step*(l-2)))};
 const presetSubs=l=>PRESET[difficulty](Math.max(2,l));
 const subsTo=l=>{const r=rewards.find(r=>r.l===l);return r&&r.subs>0?r.subs:presetSubs(l)};
 const need=l=>subsTo(l+1)*SUB;
