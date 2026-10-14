@@ -85,6 +85,24 @@ svg.i{width:16px;height:16px;flex:none}
 .nextline{display:flex;align-items:center;gap:8px;background:var(--s2);border-radius:0 0 var(--rm) var(--rm);padding:9px 12px;font-size:13px;cursor:pointer;border:0;width:100%;text-align:left}
 .nextline .k{color:var(--r1);font-weight:600;white-space:nowrap}
 .nextline .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* level-up moment + heat by level */
+.hypebar .fill.t2{background:linear-gradient(90deg,var(--hype),var(--brand))}
+.hypebar .fill.t3{background:linear-gradient(90deg,var(--hype),var(--brand) 60%,#c04bff)}
+.hypebar .fill.t4{background:linear-gradient(90deg,var(--brand),#c04bff 55%,var(--r1))}
+.hypebar .flash{position:absolute;inset:0;background:var(--r1);opacity:0;pointer-events:none}
+.hypebar.lvlup .flash{animation:hb-flash 1.6s ease-out both}
+.hypebar.lvlup .lvtxt{display:inline-block;animation:hb-pop 1.6s cubic-bezier(.2,1.6,.4,1) both}
+.hypebar.lvlup{animation:hb-shake .5s ease-in-out both}
+.upchip{display:inline-block;margin-left:8px;font:700 10.5px/1 var(--font);letter-spacing:.04em;text-transform:uppercase;background:var(--r1);color:#1a1300;padding:4px 7px;border-radius:var(--rp);vertical-align:3px;animation:hb-chip 2.6s ease both}
+.lvdots{display:inline-flex;gap:3px;margin-left:8px;vertical-align:2px}
+.lvdots i{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.35)}
+.lvdots i.on{background:#fff}
+@keyframes hb-flash{0%{opacity:.95}100%{opacity:0}}
+@keyframes hb-pop{0%{transform:scale(1.6);color:#1a1300}40%{transform:scale(1);color:#1a1300}100%{transform:scale(1)}}
+@keyframes hb-shake{0%,100%{transform:none}20%{transform:translateX(-3px)}40%{transform:translateX(3px)}60%{transform:translateX(-2px)}80%{transform:translateX(1px)}}
+@keyframes hb-chip{0%{opacity:0;transform:translateY(4px)}10%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.hypebar.lvlup,.hypebar.lvlup .lvtxt,.hypebar.lvlup .flash{animation:none}.upchip{animation:none}}
 .panel{background:var(--s1);margin:0 10px;padding:8px;display:flex;flex-direction:column;gap:8px;border-radius:0 0 var(--rm) var(--rm)}
 .remaining{background:var(--s2);border-radius:var(--rs);padding:8px;text-align:center;font-size:13px;color:var(--t2)}
 .remaining b{color:var(--t1);font-weight:600;font-variant-numeric:tabular-nums}
@@ -271,7 +289,7 @@ const save=()=>{try{localStorage.setItem("hr-rewards",JSON.stringify(rewards))}c
 let S;
 function fresh(){
   S={mode:S?S.mode:"viewer",active:true,level:1,pts:600,ends:Date.now()+TRAIN_SECS*1000,unlocked:{},contrib:{mossy:{g:5,b:0},deathcult_99:{g:4,b:0},Ratchetvibes:{g:3,b:300},celestialbits:{g:0,b:1200}},
-     chat:[],open:false,sheet:null,sel:5,bitsSel:1000,tab:"gift",detail:null,notify:{},toast:null,pinned:null,you:0,lbMetric:"gifts"};
+     chat:[],open:false,sheet:null,sel:5,bitsSel:1000,tab:"gift",detail:null,notify:{},toast:null,pinned:null,you:0,lbMetric:"gifts",upAt:0};
 }
 fresh();
 const rewardAt=l=>{const r=rewards.find(r=>r.l===l);return r&&r.title.trim()?r:null};
@@ -287,7 +305,7 @@ function addPts(who,pts,kind,count){
   if(who==="You")S.you+=kind==="gift"?count:0;
   S.pts+=pts; S.ends=Date.now()+TRAIN_SECS*1000;
   while(S.pts>=need(S.level)){
-    S.pts-=need(S.level); S.level++;
+    S.pts-=need(S.level); S.level++; S.upAt=Date.now();
     const r=rewardAt(S.level);
     log("hype_train.progress level="+S.level);
     if(r){
@@ -349,7 +367,9 @@ function viewer(){
   h+='<div class="actionrow"><button class="pill s" type="button" data-open="gift">Subscribe</button><button class="pill p" type="button">Follow</button></div>';
   h+=leaderboard();
   if(S.active){
-    h+='<div class="hw"><button type="button" class="hypebar'+(S.open?" open":(nx?" hasnext":""))+'" id="hb" aria-expanded="'+S.open+'"><span class="fill" style="width:'+pct()+'%"></span><span class="l"><small>Hype Train</small><span>Lvl '+S.level+'</span></span><span class="r"><b id="tm">'+timeLeft()+'</b><span>'+pct()+'%</span></span><span class="ch">'+ic(S.open?"up":"down")+'</span></button>';
+    const since=Date.now()-S.upAt, up=since<2600, dl=up?' style="animation-delay:-'+since+'ms"':'';
+    const tier=S.level>=8?"t4":S.level>=5?"t3":S.level>=3?"t2":"";
+    h+='<div class="hw"><button type="button" class="hypebar'+(S.open?" open":(nx?" hasnext":""))+(since<1600?" lvlup":"")+'" id="hb" aria-expanded="'+S.open+'"'+(since<1600?dl:"")+'><span class="fill '+tier+'" style="width:'+pct()+'%"></span><span class="flash"'+dl+'></span><span class="l"><small>Hype Train'+(up?'<span class="upchip"'+dl+'>Level up!</span>':'')+'</small><span class="lvtxt"'+dl+'>Lvl '+S.level+'</span></span><span class="r"><b id="tm">'+timeLeft()+'</b><span>'+pct()+'%</span></span><span class="ch">'+ic(S.open?"up":"down")+'</span></button>';
     if(!S.open&&nx)h+='<button type="button" class="nextline" data-detail="'+nx.l+'">'+ic("gift","color:var(--r1)")+'<span class="k">Lvl '+nx.l+'</span><span class="t">'+esc(nx.title)+'</span></button>';
     h+='</div>';
     if(S.open){
