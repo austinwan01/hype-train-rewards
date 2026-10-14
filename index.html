@@ -191,6 +191,19 @@ svg.i{width:16px;height:16px;flex:none}
 .rhead{display:flex;gap:10px;align-items:flex-start}
 .rhead .lvl{flex:none;width:44px;height:44px;border-radius:var(--rm);display:flex;align-items:center;justify-content:center;font:700 17px/1 var(--font)}
 .rhead h3{margin:0;font:600 18px/1.25 var(--font)}
+.newchip{flex:none;font:700 10px/1 var(--font);letter-spacing:.04em;text-transform:uppercase;background:var(--r1);color:#1a1300;padding:4px 6px;border-radius:var(--rp)}
+.addcard{background:var(--s2);border-radius:var(--rm);padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:inset 0 0 0 1px var(--hype)}
+.addcard b{font:600 15px/1.25 var(--font)}
+.addcard p{margin:0;font-size:12.5px;color:var(--t2)}
+.asks{display:flex;flex-wrap:wrap;gap:6px}
+.ask{border:0;cursor:pointer;background:var(--s3);color:var(--t1);border-radius:var(--rp);padding:7px 10px;font:600 12.5px/1 var(--font);display:inline-flex;gap:6px;align-items:center}
+.ask small{color:var(--r1);font-weight:700}
+.lvpick{display:flex;flex-wrap:wrap;gap:6px}
+.lvpick button{border:0;cursor:pointer;background:var(--s2);color:var(--t2);border-radius:var(--rm);padding:8px 11px;font:600 13px/1 var(--font)}
+.lvpick button[aria-pressed="true"]{background:var(--hype);color:#fff}
+.fld label{display:block;font:600 12.5px/1.3 var(--font);margin-bottom:5px}
+.rules{font-size:12px;color:var(--tm);background:var(--s1);border-radius:var(--rm);padding:9px 11px}
+.toast.new{box-shadow:0 0 0 1px var(--r1),0 12px 30px rgba(0,0,0,.6)}
 .chip{display:inline-block;margin-top:5px;font:600 11.5px/1 var(--font);padding:5px 9px;border-radius:var(--rp)}
 .quote{font-size:13.5px;color:var(--t2);background:var(--s1);border-radius:var(--rm);padding:10px 11px}
 .trow{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13.5px}
@@ -213,6 +226,7 @@ svg.i{width:16px;height:16px;flex:none}
 <style>body{margin:0}</style>
 </head>
 <body>
+
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <symbol id="gift" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7c-1-3-5-4-5-1.5S10 7 12 7zm0 0c1-3 5-4 5-1.5S14 7 12 7z"/></symbol>
 <symbol id="lock" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></symbol>
@@ -261,7 +275,7 @@ svg.i{width:16px;height:16px;flex:none}
       <div class="edhead"><span>Level</span><span>Reward</span><span>Subs</span><span class="dh">Due</span><span></span></div>
       <div id="editor"></div>
       <div class="btnrow" style="margin-top:10px"><button class="pill s" type="button" id="b-addlvl">Add a level</button></div>
-      <div id="lockhint" hidden style="margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span class="hint" style="margin:0;flex:1;min-width:200px">Locked while a train is running, so rewards and costs can't change after chat starts paying.</span><button class="pill s" type="button" id="b-end2">End the train to edit</button></div>
+      <div id="lockhint" hidden style="margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span class="hint" style="margin:0;flex:1;min-width:200px">Locked while a train is running, so rewards and costs can't change after chat starts paying. You can still add new rewards to higher levels from the phone's Streamer view.</span><button class="pill s" type="button" id="b-end2">End the train to edit</button></div>
     </div>
 
     <div class="card">
@@ -296,6 +310,7 @@ const presetSubs=l=>PRESET[difficulty](Math.max(2,l));
 const subsTo=l=>{const r=rewards.find(r=>r.l===l);return r&&r.subs>0?r.subs:presetSubs(l)};
 const need=l=>subsTo(l+1)*SUB;
 const BOTS=[["kai_builds","#b57bff"],["mossy","#5fb8ff"],["rengoku_44","#62d48a"],["pixel_lena","#ff8fd0"],["deathcult_99","#ffb347"],["Ratchetvibes","#7fe0d0"],["celestialbits","#c9a0ff"]];
+const REQUESTS=["No-build round","Only use the first gun I find","Chat picks my skin for a match","Play with inverted controls","Sing the next win screen","Land at Tilted Towers"];
 const LINES=["LETS GOOO","PUSH THE TRAIN","she's gonna fight with a pickaxe lmao","no way she drops the guns","W streamer","clip it","HYPE","we're so close","chat do your thing","GG"];
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const ic=(id,st)=>'<svg class="i"'+(st?' style="'+st+'"':'')+'><use href="#'+id+'"/></svg>';
@@ -306,8 +321,8 @@ const save=()=>{try{localStorage.setItem("hr-rewards",JSON.stringify(rewards));l
 
 let S;
 function fresh(){
-  S={mode:S?S.mode:"viewer",active:true,level:1,pts:600,ends:Date.now()+TRAIN_SECS*1000,unlocked:{},contrib:{mossy:{g:5,b:0},deathcult_99:{g:4,b:0},Ratchetvibes:{g:3,b:300},celestialbits:{g:0,b:1200}},
-     chat:[],open:false,sheet:null,sel:5,bitsSel:1000,tab:"gift",detail:null,notify:{},toast:null,pinned:null,you:0,lbMetric:"gifts",upAt:0,tier:1};
+  S={trainId:Date.now(),mode:S?S.mode:"viewer",active:true,level:1,pts:600,ends:Date.now()+TRAIN_SECS*1000,unlocked:{},contrib:{mossy:{g:5,b:0},deathcult_99:{g:4,b:0},Ratchetvibes:{g:3,b:300},celestialbits:{g:0,b:1200}},
+     chat:[],open:false,sheet:null,sel:5,bitsSel:1000,tab:"gift",detail:null,notify:{},toast:null,pinned:null,you:0,lbMetric:"gifts",upAt:0,tier:1,asks:{},addLvl:null,addPrefill:""};
 }
 fresh();
 const rewardAt=l=>{const r=rewards.find(r=>r.l===l);return r&&r.title.trim()?r:null};
@@ -373,7 +388,7 @@ function rewardRow(r){
   else if(st==="owed"){cls+=" owed";lab="Owed";}
   else if(st==="done"){cls+=" done";lab=ic("check","width:14px;height:14px")+"Done";}
   else if(st==="missed"){lab="Earlier";}
-  return '<button type="button" class="'+cls+'" data-detail="'+r.l+'"><span class="lvl">'+r.l+'</span><span class="t"><b>'+esc(r.title)+'</b><span>'+subsTo(r.l)+' subs \u00B7 '+esc(r.due)+'</span></span><span class="st">'+lab+'</span></button>';
+  return '<button type="button" class="'+cls+'" data-detail="'+r.l+'"><span class="lvl">'+r.l+'</span><span class="t"><b>'+esc(r.title)+'</b><span>'+subsTo(r.l)+' subs \u00B7 '+esc(r.due)+'</span></span>'+(r.addedLive===S.trainId&&rowState(r.l)!=="done"&&rowState(r.l)!=="owed"?'<span class="newchip">New</span>':'')+'<span class="st">'+lab+'</span></button>';
 }
 function remainingTxt(){const rem=need(S.level)-S.pts;return '<b>'+ic("bits","width:14px;height:14px;vertical-align:-2px")+' '+fmt(rem)+' Bits</b> or <b>'+ic("gift","width:14px;height:14px;vertical-align:-2px")+' '+Math.ceil(rem/SUB)+' Subs</b><br>remaining to complete level '+S.level;}
 
@@ -388,7 +403,7 @@ function viewer(){
     const since=Date.now()-S.upAt, up=since<2600, dl=up?' style="animation-delay:-'+since+'ms"':'';
     const tier=S.level>=8?"t4":S.level>=5?"t3":S.level>=3?"t2":"";
     h+='<div class="hw"><button type="button" class="hypebar'+(S.open?" open":(nx?" hasnext":""))+(since<1600?" lvlup":"")+'" id="hb" aria-expanded="'+S.open+'"'+(since<1600?dl:"")+'><span class="fill '+tier+'" style="width:'+pct()+'%"></span><span class="flash"'+dl+'></span><span class="l"><small>Hype Train'+(up?'<span class="upchip"'+dl+'>Level up!</span>':'')+'</small><span class="lvtxt"'+dl+'>Lvl '+S.level+'</span></span><span class="r"><b id="tm">'+timeLeft()+'</b><span>'+pct()+'%</span></span><span class="ch">'+ic(S.open?"up":"down")+'</span></button>';
-    if(!S.open&&nx)h+='<button type="button" class="nextline" data-detail="'+nx.l+'">'+ic("gift","color:var(--r1)")+'<span class="k">Lvl '+nx.l+'</span><span class="t">'+esc(nx.title)+'</span></button>';
+    if(!S.open&&nx)h+='<button type="button" class="nextline" data-detail="'+nx.l+'">'+ic("gift","color:var(--r1)")+'<span class="k">Lvl '+nx.l+'</span><span class="t">'+esc(nx.title)+'</span>'+(nx.addedLive===S.trainId?'<span class="newchip">New</span>':'')+'</button>';
     h+='</div>';
     if(S.open){
       const list=rewards.filter(r=>r.title.trim()).sort((a,b)=>a.l-b.l);
@@ -407,7 +422,8 @@ function viewer(){
       ?'<div class="notice hype">'+ic("gift","color:#c8c1ff")+'<div class="tx"><b>Reward owed: '+esc(r.title)+'</b><br><span>Unlocked at Lvl '+S.pinned.l+'</span></div><button class="pill s" type="button" data-detail="'+S.pinned.l+'">View</button></div>'
       :'<div class="notice">'+ic("check")+'<div class="tx"><b>Reward done: '+esc(r.title)+'</b><br><span>DropZoneDana paid off Lvl '+S.pinned.l+'</span></div><button class="pill p" type="button" id="clip">Clip it</button></div>';}
   h+='<div class="inputbar"><span class="pts"><i></i>320</span><span class="field">Send Chat<span style="display:flex;gap:10px"><button class="ib" type="button" data-open="bits" aria-label="Cheer with Bits">'+ic("bits")+'</button><button class="ib" type="button" aria-label="Emotes">'+ic("emote")+'</button></span></span>'+ic("more")+'</div>';
-  if(S.toast)h+='<div class="toast" role="status">'+ic("trophy","color:var(--r1);width:30px;height:30px")+'<div><b>Lvl '+S.toast.l+' reached!</b><span>DropZoneDana has to: '+esc(S.toast.title)+' · '+S.toast.helpers+' people helped</span></div></div>';
+  if(S.toast&&S.toast.kind==="new")h+='<div class="toast new" role="status">'+ic("gift","color:var(--r1);width:30px;height:30px")+'<div><b>New reward at Lvl '+S.toast.l+'!</b><span>DropZoneDana just added: '+esc(S.toast.title)+'</span></div></div>';
+  else if(S.toast)h+='<div class="toast" role="status">'+ic("trophy","color:var(--r1);width:30px;height:30px")+'<div><b>Lvl '+S.toast.l+' reached!</b><span>DropZoneDana has to: '+esc(S.toast.title)+' · '+S.toast.helpers+' people helped</span></div></div>';
   if(S.sheet)h+='<div class="scrim" data-close></div>'+sheet();
   return h;
 }
@@ -462,17 +478,46 @@ function detailSheet(){
   h+='<button class="link" type="button" id="report">Report this reward</button>';
   return h;
 }
+function openLevels(){const out=[];for(let l=S.level+1;out.length<5&&l<=S.level+12;l++){if(!rewardAt(l))out.push(l);}return out;}
+function topAsks(){return Object.entries(S.asks).sort((a,b)=>b[1]-a[1]).slice(0,3);}
+function addSheet(){
+  const lv=openLevels(); if(!lv.includes(S.addLvl))S.addLvl=lv[0];
+  let h='<div class="shead"><h3>Add a reward to this train</h3><button class="xbtn" type="button" data-close aria-label="Close">\u00D7</button></div>';
+  const asks=topAsks();
+  if(asks.length)h+='<div class="fld"><label>Chat is asking for</label><div class="asks">'+asks.map(([q,n])=>'<button type="button" class="ask" data-ask="'+esc(q)+'">'+esc(q)+'<small>\u00D7'+n+'</small></button>').join("")+'</div></div>';
+  h+='<div class="fld"><label>Which level</label><div class="lvpick">'+lv.map(l=>'<button type="button" data-addlvl="'+l+'" aria-pressed="'+(l===S.addLvl)+'">Lvl '+l+' <span style="font-weight:400;opacity:.8">\u00B7 '+subsTo(l)+' subs</span></button>').join("")+'</div></div>';
+  h+='<div class="fld"><label for="add-title">Reward</label><input class="in" id="add-title" maxlength="60" placeholder="e.g. No-build round" value="'+esc(S.addPrefill)+'"></div>';
+  h+='<div class="fld"><label for="add-due">Due</label><select class="in" id="add-due"><option>This match</option><option>End of stream</option><option>Next stream</option></select></div>';
+  h+='<div class="rules">You can add rewards to higher levels while a train is running. Rewards viewers are already paying toward can\u2019t be changed or removed until it ends.</div>';
+  h+='<button class="pill p block" type="button" id="doadd">'+ic("gift")+'Add to Lvl '+S.addLvl+' and tell chat</button>';
+  return h;
+}
+function addLiveReward(l,title,due,fromChat){
+  let r=rewards.find(r=>r.l===l);
+  if(r){r.title=title;r.due=due;}else{r={l,title,details:"",due};rewards.push(r);}
+  r.addedLive=S.trainId;r.fromChat=!!fromChat;save();
+  say(null,"New reward added at Lvl "+l+": "+title+(fromChat?" (chat asked for it!)":""),true);
+  log("hype_train.reward_added level="+l+' title="'+title+'" live=true');
+  S.toast={kind:"new",l,title};clearTimeout(S._tt);S._tt=setTimeout(()=>{S.toast=null;render(false);},6000);
+  if(fromChat)delete S.asks[fromChat];
+  renderEditor();
+}
 function sheet(){
-  const body=S.sheet==="gift"?giftSheet():S.sheet==="bits"?bitsSheet():detailSheet();
+  const body=S.sheet==="gift"?giftSheet():S.sheet==="bits"?bitsSheet():S.sheet==="add"?addSheet():detailSheet();
   return '<div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>'+body+'</div>';
 }
 
 function streamer(){
   let h='<div class="sb"><span>9:41</span><span>●●● ▮</span></div>';
-  h+='<div class="sm-head"><b>Stream Manager</b><span style="color:var(--tm);font-size:12.5px">'+(S.active?"Hype Train Lvl "+S.level+" · "+timeLeft():"Live")+'</span></div>';
+  h+='<div class="sm-head"><b>Stream Manager</b><span data-livelvl style="color:var(--tm);font-size:12.5px">'+(S.active?"Hype Train Lvl "+S.level+" · "+timeLeft():"Live")+'</span></div>';
   const items=Object.entries(S.unlocked).map(([l,u])=>({l:+l,u,r:rewardAt(+l)||{title:"Lvl "+l+" reward",due:""}})).sort((a,b)=>a.l-b.l);
   const owed=items.filter(i=>i.u.state==="owed"), done=items.filter(i=>i.u.state==="done");
-  h+='<div class="scroll"><div class="sm"><div class="sect">Rewards queue <small>'+owed.length+' owed</small></div>';
+  h+='<div class="scroll"><div class="sm">';
+  if(S.active){const asks=topAsks(), lv=openLevels();
+    h+='<div class="addcard"><div><b>Chat wants more?</b><p>Add a reward to a higher level of this train to give chat something to push for.</p></div>';
+    if(asks.length)h+='<div class="asks">'+asks.map(([q,n])=>'<button type="button" class="ask" data-ask="'+esc(q)+'">'+esc(q)+'<small>\u00D7'+n+'</small></button>').join("")+'</div>';
+    h+='<button class="pill p" type="button" id="openadd"'+(lv.length?"":" disabled")+'>'+ic("gift")+'Add a reward</button></div>';}
+  h+='<div class="sect">Rewards queue <small>'+owed.length+' owed</small></div>';
   if(!items.length)h+='<div class="empty">Nothing owed yet. When the train reaches a level with a reward, it lands here.<br><br>Try "Gift bomb" on the left.</div>';
   owed.forEach((i,ix)=>{
     h+=ix===0?'<div class="unlockc"><div><b>'+esc(i.r.title)+'</b><span>Lvl '+i.l+' · Due '+esc(i.r.due.toLowerCase())+'</span></div><div style="display:flex;gap:8px"><button class="pill p" type="button" style="flex:1" data-done="'+i.l+'">'+ic("check")+'Mark done</button><button class="pill s" type="button" data-skip="'+i.l+'">Skip</button></div></div>'
@@ -483,6 +528,7 @@ function streamer(){
   h+='<div class="sect" style="margin-top:8px">Top supporters</div>';
   h+=topThree().map((e,i)=>'<div class="rankline"><span class="medal m'+(i+1)+'">'+(i+1)+'</span><span style="flex:1"><b>'+esc(e[0])+'</b></span><span style="color:var(--t2)">'+e[1].g+' gifts · '+fmt(e[1].b)+' Bits</span></div>').join("");
   h+='</div></div>';
+  if(S.sheet==="add")h+='<div class="scrim" data-close></div>'+sheet();
   return h;
 }
 
@@ -515,7 +561,8 @@ document.getElementById("b-addlvl").onclick=()=>{const l=Math.max(1,...rewards.m
 /* ---------- render + events ---------- */
 const scr=document.getElementById("screen");
 let lastActive=null;
-function render(withEditor){
+function render(withEditor,force){
+  if(S.sheet==="add"&&!force&&S.mode==="streamer"){document.getElementById("st-l").textContent=S.level;const sub=scr.querySelector("[data-livelvl]");if(sub)sub.textContent="Hype Train Lvl "+S.level+" \u00B7 "+timeLeft();return;}
   const sc=scr.querySelector(".scroll");const keep=sc?sc.scrollTop:0;
   const sh=scr.querySelector(".sheet");const keepSh=sh?sh.scrollTop:0;
   scr.innerHTML=S.mode==="viewer"?viewer():streamer();
@@ -535,6 +582,12 @@ scr.addEventListener("click",e=>{
   else if(t.dataset.sel){S.sel=+t.dataset.sel;}
   else if(t.dataset.bits){S.bitsSel=+t.dataset.bits;}
   else if(t.dataset.tier){S.tier=+t.dataset.tier;}
+  else if(t.id==="openadd"){S.sheet="add";S.addPrefill="";}
+  else if(t.dataset.ask!==undefined){const ti=document.getElementById("add-title");if(ti){ti.value=t.dataset.ask;ti.dataset.fromChat=t.dataset.ask;ti.focus();return;}S.sheet="add";S.addPrefill=t.dataset.ask;S._fromChat=t.dataset.ask;}
+  else if(t.dataset.addlvl){const ti=document.getElementById("add-title");S.addPrefill=ti?ti.value:"";if(ti&&ti.dataset.fromChat)S._fromChat=ti.dataset.fromChat;S.addLvl=+t.dataset.addlvl;}
+  else if(t.id==="doadd"){const ti=document.getElementById("add-title"),v=ti.value.trim();if(!v){ti.focus();ti.placeholder="Type a reward first";return;}
+    const fc=(ti.dataset.fromChat&&ti.dataset.fromChat===v)?v:(S._fromChat===v?v:null);
+    addLiveReward(S.addLvl,v,document.getElementById("add-due").value,fc);S.sheet=null;S._fromChat=null;S.addPrefill="";}
   else if(t.id==="dogift"){S.lbMetric="gifts";addPts("You",S.sel*TIERS[S.tier].pts,"gift",S.sel);say(null,"You gifted "+S.sel+" Tier "+S.tier+" sub"+(S.sel>1?"s":"")+" to the community!",true);log("channel.subscription.gift tier="+S.tier+"000 total="+S.sel);S.sheet=null;}
   else if(t.id==="docheer"){S.lbMetric="bits";addPts("You",S.bitsSel,"bits",S.bitsSel);say("You","Cheer"+S.bitsSel+" LETS GO");S.chat[S.chat.length-1].color="#9147ff";log("channel.cheer bits="+S.bitsSel);S.sheet=null;}
   else if(t.id==="notify"){S.notify[S.detail]=!S.notify[S.detail];}
@@ -543,7 +596,7 @@ scr.addEventListener("click",e=>{
   else if(t.dataset.done){markDone(+t.dataset.done,"DropZoneDana");}
   else if(t.dataset.skip){const u=S.unlocked[+t.dataset.skip];u.state="done";u.skipped=true;u.by="DropZoneDana";S.pinned=null;say(null,"Skipped: "+(rewardAt(+t.dataset.skip)||{title:""}).title+" (game ended)",true);log("hype_train.reward_skipped level="+t.dataset.skip);}
   else return;
-  render(false);
+  render(false,true);
 });
 document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{S.mode=b.dataset.mode;S.sheet=null;document.querySelectorAll("[data-mode]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));render(false);});
 const rb=()=>BOTS[Math.floor(Math.random()*BOTS.length)];
@@ -559,7 +612,8 @@ seed();render();
 
 setInterval(()=>{
   if(S.active&&Date.now()>=S.ends){endTrain();render();return;}
-  if(Math.random()<.45){const b=rb();S.chat.push({name:b[0],color:b[1],text:LINES[Math.floor(Math.random()*LINES.length)]});if(S.chat.length>40)S.chat.shift();render(false);}
+  if(S.active&&Math.random()<.18){const b=rb();const q=REQUESTS[Math.floor(Math.random()*4)];S.asks[q]=(S.asks[q]||0)+1;S.chat.push({name:b[0],color:b[1],text:"@DropZoneDana add “"+q.toLowerCase()+"” as a reward!!"});if(S.chat.length>40)S.chat.shift();render(false);}
+  else if(Math.random()<.45){const b=rb();S.chat.push({name:b[0],color:b[1],text:LINES[Math.floor(Math.random()*LINES.length)]});if(S.chat.length>40)S.chat.shift();render(false);}
   else{const tm=document.getElementById("tm");if(tm)tm.textContent=timeLeft();}
 },1500);
 })();
