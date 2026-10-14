@@ -17,6 +17,7 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{height:100%}
 body{background:var(--bg);color:var(--t1);font:400 14px/1.45 var(--font)}
 button{font-family:inherit;color:inherit}
@@ -254,12 +255,13 @@ svg.i{width:16px;height:16px;flex:none}
 
     <div class="card">
       <h2>Creator dashboard: rewards and difficulty</h2>
-      <p class="sub">What DropZoneDana will do at each level. Changes show on the phone right away. Leave a title empty to use the default emote reward. "Subs" is how many subs it takes to reach that level; leave it empty to use the difficulty setting. 1 sub = 500 Bits.</p>
-      <div class="diff"><label for="difficulty">Difficulty</label><select class="in" id="difficulty" style="width:auto"><option value="easy">Easy</option><option value="normal">Normal</option><option value="hard">Hard</option></select><span class="hint" style="margin:0" id="diffhint"></span></div>
+      <p class="sub">What DropZoneDana will do at each level. Changes show on the phone right away. Leave a title empty to use the default emote reward. Pick Custom to set your own sub counts, or type an exact number in any level's "Subs" box. 1 sub = 500 Bits.</p>
+      <div class="diff"><label for="difficulty">Difficulty</label><select class="in" id="difficulty" style="width:auto"><option value="easy">Easy</option><option value="normal">Normal</option><option value="hard">Hard</option><option value="custom">Custom</option></select><span class="hint" style="margin:0" id="diffhint"></span></div>
+      <div class="diff" id="customrow" hidden><label for="c-base">Lvl 2 takes</label><input class="in num" type="number" min="1" max="200" id="c-base" style="width:72px"><span class="hint" style="margin:0">subs, and each level after adds</span><input class="in num" type="number" min="0" max="100" id="c-step" style="width:72px"><span class="hint" style="margin:0">more</span></div>
       <div class="edhead"><span>Level</span><span>Reward</span><span>Subs</span><span class="dh">Due</span><span></span></div>
       <div id="editor"></div>
       <div class="btnrow" style="margin-top:10px"><button class="pill s" type="button" id="b-addlvl">Add a level</button></div>
-      <p class="hint" id="lockhint" hidden>Editing is locked while a train is running, so a reward can't change after chat starts paying for it.</p>
+      <div id="lockhint" hidden style="margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span class="hint" style="margin:0;flex:1;min-width:200px">Locked while a train is running, so rewards and costs can't change after chat starts paying.</span><button class="pill s" type="button" id="b-end2">End the train to edit</button></div>
     </div>
 
     <div class="card">
@@ -283,9 +285,9 @@ const DEFAULT_REWARDS=[
   {l:7,title:"Chat names my next 3 skins",details:"",due:"Next stream"}
 ];
 const SUB=500, TRAIN_SECS=300;
-let difficulty="normal";
-try{difficulty=localStorage.getItem("hr-diff")||"normal"}catch(e){}
-const PRESET={easy:l=>2+Math.floor((l-2)/2),normal:l=>3+(l-2),hard:l=>5+2*(l-2)};
+let difficulty="normal",custom={base:4,step:2};
+try{difficulty=localStorage.getItem("hr-diff")||"normal";custom=JSON.parse(localStorage.getItem("hr-custom")||"null")||custom}catch(e){}
+const PRESET={easy:l=>2+Math.floor((l-2)/2),normal:l=>3+(l-2),hard:l=>5+2*(l-2),custom:l=>Math.max(1,custom.base+custom.step*(l-2))};
 const presetSubs=l=>PRESET[difficulty](Math.max(2,l));
 const subsTo=l=>{const r=rewards.find(r=>r.l===l);return r&&r.subs>0?r.subs:presetSubs(l)};
 const need=l=>subsTo(l+1)*SUB;
@@ -296,7 +298,7 @@ const ic=(id,st)=>'<svg class="i"'+(st?' style="'+st+'"':'')+'><use href="#'+id+
 let rewards;
 try{rewards=JSON.parse(localStorage.getItem("hr-rewards")||"null")}catch(e){}
 if(!Array.isArray(rewards))rewards=JSON.parse(JSON.stringify(DEFAULT_REWARDS));
-const save=()=>{try{localStorage.setItem("hr-rewards",JSON.stringify(rewards));localStorage.setItem("hr-diff",difficulty)}catch(e){}};
+const save=()=>{try{localStorage.setItem("hr-rewards",JSON.stringify(rewards));localStorage.setItem("hr-diff",difficulty);localStorage.setItem("hr-custom",JSON.stringify(custom))}catch(e){}};
 
 let S;
 function fresh(){
@@ -486,10 +488,14 @@ function renderEditor(){
   edEl.innerHTML=rewards.slice().sort((a,b)=>a.l-b.l).map(r=>'<div class="edrow"><span class="lv">Lvl '+r.l+'</span><input class="in" id="t-'+r.l+'" data-ed="'+r.l+'" maxlength="60" placeholder="Default emote reward" value="'+esc(r.title)+'"'+(locked?" disabled":"")+'><input class="in num" type="number" min="1" max="200" inputmode="numeric" id="s-'+r.l+'" data-subs="'+r.l+'" placeholder="'+presetSubs(r.l)+'" value="'+(r.subs>0?r.subs:"")+'" aria-label="Subs to reach level '+r.l+'"'+(locked?" disabled":"")+'><select class="in" id="d-'+r.l+'" data-due="'+r.l+'"'+(locked?" disabled":"")+'>'+["This match","End of stream","Next stream"].map(o=>'<option'+(o===r.due?" selected":"")+'>'+o+'</option>').join("")+'</select><button class="x" type="button" data-del="'+r.l+'" aria-label="Remove level '+r.l+'"'+(locked?" disabled":"")+'>×</button></div>').join("");
   document.getElementById("b-addlvl").disabled=locked;
   const ds=document.getElementById("difficulty");ds.value=difficulty;ds.disabled=locked;
+  document.getElementById("customrow").hidden=difficulty!=="custom";
+  const cb=document.getElementById("c-base"),cs=document.getElementById("c-step");
+  if(document.activeElement!==cb)cb.value=custom.base;if(document.activeElement!==cs)cs.value=custom.step;cb.disabled=cs.disabled=locked;
   document.getElementById("diffhint").textContent="Lvl 2 takes "+presetSubs(2)+" subs, Lvl 5 takes "+presetSubs(5)+", Lvl 10 takes "+presetSubs(10)+".";
 }
 edEl.addEventListener("input",e=>{const l=+e.target.dataset.ed;if(!l)return;const r=rewards.find(r=>r.l===l);r.title=e.target.value;save();render(false);});
 edEl.addEventListener("input",e=>{const l=+e.target.dataset.subs;if(!l)return;const v=parseInt(e.target.value,10);rewards.find(r=>r.l===l).subs=v>0?Math.min(v,200):null;save();render(false);});
+["c-base","c-step"].forEach(id=>document.getElementById(id).addEventListener("input",e=>{const v=parseInt(e.target.value,10);if(isNaN(v))return;custom[id==="c-base"?"base":"step"]=Math.max(id==="c-base"?1:0,Math.min(v,200));save();renderEditor();render(false);}));
 document.getElementById("difficulty").addEventListener("change",e=>{difficulty=e.target.value;save();log("hype_train.settings difficulty="+difficulty);renderEditor();render(false);});
 edEl.addEventListener("change",e=>{const l=+e.target.dataset.due;if(!l)return;rewards.find(r=>r.l===l).due=e.target.value;save();render(false);});
 edEl.addEventListener("click",e=>{const b=e.target.closest("[data-del]");if(!b)return;rewards=rewards.filter(r=>r.l!==+b.dataset.del);save();renderEditor();render(false);});
@@ -533,6 +539,7 @@ document.getElementById("b-sub").onclick=()=>{if(!S.active)return;const b=rb();S
 document.getElementById("b-bits").onclick=()=>{if(!S.active)return;const b=rb();S.lbMetric="bits";addPts(b[0],500,"bits",500);say(b[0],"Cheer500 PUSH IT");S.chat[S.chat.length-1].color=b[1];log("channel.cheer bits=500 user="+b[0]);render(false);};
 document.getElementById("b-bomb").onclick=()=>{if(!S.active)return;const b=rb();S.lbMetric="gifts";addPts(b[0],10*SUB,"gift",10);say(null,b[0]+" gifted 10 subs to the community!",true);log("channel.subscription.gift total=10 user="+b[0]);render(false);};
 document.getElementById("b-end").onclick=()=>{endTrain();render();};
+document.getElementById("b-end2").onclick=()=>{endTrain();render();};
 document.getElementById("b-reset").onclick=()=>{fresh();logEl.innerHTML="";seed();render();};
 
 function seed(){for(let i=0;i<5;i++){const b=rb();S.chat.push({name:b[0],color:b[1],text:LINES[Math.floor(Math.random()*LINES.length)]});}log("hype_train.begin level=1");}

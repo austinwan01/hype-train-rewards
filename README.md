@@ -22,7 +22,7 @@ It's plain HTML, CSS and JavaScript with no build step.
 
 1. **Viewer:** tap the Hype Train bar, tap a reward for details, then Gift or tap the Bits icon in chat to push the train.
 2. **Streamer:** switch the phone to Streamer and tap Mark done. The viewer's pinned notice turns into "Reward done".
-3. **Creator:** end the train, then edit rewards, pick a difficulty (Easy, Normal, Hard), or set how many subs each level takes. The phone updates live. Settings are saved in your browser's localStorage.
+3. **Creator:** end the train, then edit rewards, pick a difficulty (Easy, Normal, Hard or Custom with your own sub counts), or set an exact number of subs for any level. The phone updates live. Settings are saved in your browser's localStorage.
 
 ## Design
 
